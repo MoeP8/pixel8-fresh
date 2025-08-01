@@ -46,11 +46,9 @@ const Providers: React.FC<{ children: React.ReactNode }> = ({ children }) => (
         />
         {/* <Sonner /> */}
         <AuthProvider>
-          <AuthGuard>
-            <RealtimeProvider>
-              {children}
-            </RealtimeProvider>
-          </AuthGuard>
+          <RealtimeProvider>
+            {children}
+          </RealtimeProvider>
         </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>
