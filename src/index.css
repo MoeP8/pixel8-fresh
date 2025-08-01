@@ -1,0 +1,165 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Brand Colors: #0C0A3E (Deep Navy), #FF1254 (Bright Red), #FDFDFD (Off-white) */
+    --background: 240 25% 99%;
+    --foreground: 248 77% 15%;
+
+    --card: 240 25% 99%;
+    --card-foreground: 248 77% 15%;
+
+    --popover: 240 25% 99%;
+    --popover-foreground: 248 77% 15%;
+
+    --primary: 248 77% 15%; /* Deep Navy #0C0A3E */
+    --primary-foreground: 240 25% 99%;
+
+    --secondary: 342 100% 54%; /* Bright Red #FF1254 */
+    --secondary-foreground: 240 25% 99%;
+
+    --muted: 248 20% 96%;
+    --muted-foreground: 248 15% 45%; /* Ensures 4.5:1 contrast ratio */
+
+    --accent: 342 100% 54%;
+    --accent-foreground: 240 25% 99%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 240 25% 99%;
+
+    --border: 248 20% 92%;
+    --input: 248 20% 96%;
+    --ring: 342 100% 54%;
+
+    --radius: 8px; /* 8px grid system */
+
+    /* Success states */
+    --success: 142 71% 45%;
+    --success-foreground: 240 25% 99%;
+
+    /* Warning states */
+    --warning: 38 92% 50%;
+    --warning-foreground: 248 77% 15%;
+
+    /* Sidebar optimized for brand */
+    --sidebar-background: 248 77% 15%;
+    --sidebar-foreground: 240 25% 99%;
+    --sidebar-primary: 342 100% 54%;
+    --sidebar-primary-foreground: 240 25% 99%;
+    --sidebar-accent: 248 60% 20%;
+    --sidebar-accent-foreground: 240 25% 99%;
+    --sidebar-border: 248 50% 25%;
+    --sidebar-ring: 342 100% 54%;
+  }
+
+  .dark {
+    --background: 248 77% 8%;
+    --foreground: 240 25% 99%;
+
+    --card: 248 77% 10%;
+    --card-foreground: 240 25% 99%;
+
+    --popover: 248 77% 10%;
+    --popover-foreground: 240 25% 99%;
+
+    --primary: 240 25% 99%;
+    --primary-foreground: 248 77% 15%;
+
+    --secondary: 342 100% 54%;
+    --secondary-foreground: 240 25% 99%;
+
+    --muted: 248 50% 15%;
+    --muted-foreground: 248 20% 75%; /* Maintains contrast in dark mode */
+
+    --accent: 342 100% 54%;
+    --accent-foreground: 240 25% 99%;
+
+    --destructive: 0 62.8% 50%;
+    --destructive-foreground: 240 25% 99%;
+
+    --border: 248 50% 20%;
+    --input: 248 50% 20%;
+    --ring: 342 100% 54%;
+    
+    --sidebar-background: 248 77% 6%;
+    --sidebar-foreground: 240 25% 99%;
+    --sidebar-primary: 342 100% 54%;
+    --sidebar-primary-foreground: 240 25% 99%;
+    --sidebar-accent: 248 50% 15%;
+    --sidebar-accent-foreground: 240 25% 99%;
+    --sidebar-border: 248 40% 20%;
+    --sidebar-ring: 342 100% 54%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+    font-size: 16px; /* Base font size for accessibility */
+    line-height: 1.6;
+  }
+
+  /* Typography Scale - Following accessibility guidelines */
+  h1 { @apply text-4xl font-bold leading-tight; } /* 36px */
+  h2 { @apply text-3xl font-semibold leading-tight; } /* 30px */
+  h3 { @apply text-2xl font-semibold leading-snug; } /* 24px */
+  h4 { @apply text-xl font-medium leading-snug; } /* 20px */
+  h5 { @apply text-lg font-medium; } /* 18px */
+  h6 { @apply text-base font-medium; } /* 16px */
+
+  /* Focus indicators for accessibility */
+  *:focus-visible {
+    @apply outline-2 outline-offset-2 outline-ring;
+  }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* 8px Grid System */
+@layer utilities {
+  .space-grid { @apply space-y-8; }
+  .space-grid-sm { @apply space-y-4; }
+  .space-grid-lg { @apply space-y-16; }
+  
+  .p-grid { @apply p-8; }
+  .p-grid-sm { @apply p-4; }
+  .p-grid-lg { @apply p-16; }
+  
+  .m-grid { @apply m-8; }
+  .m-grid-sm { @apply m-4; }
+  .m-grid-lg { @apply m-16; }
+
+  /* Minimum touch targets */
+  .touch-target { @apply min-h-[44px] min-w-[44px]; }
+  
+  /* Loading states */
+  .skeleton {
+    @apply animate-pulse bg-muted rounded;
+  }
+  
+  /* Premium shadows */
+  .shadow-premium {
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  }
+  
+  .shadow-premium-lg {
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  }
+}
