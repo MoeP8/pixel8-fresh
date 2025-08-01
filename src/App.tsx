@@ -8,9 +8,12 @@ import { AuthGuard } from "@/components/auth/AuthGuard";
 import { AuthProvider } from "./hooks/useAuth";
 import { ErrorBoundary } from "@/components/ui/error-boundary";
 import { RealtimeProvider } from "@/components/realtime/RealtimeProvider";
+import { ThemeProvider } from "next-themes";
 import "./styles/design-system.css";
 import "./styles/responsive-enhancements.css";
-import Index from "./pages/Index";
+import Landing from "./pages/Landing";
+import { Dashboard } from "./pages/dashboard/Dashboard";
+import { DashboardLayout } from "./components/DashboardLayout";
 import Clients from "./pages/Clients";
 import BrandHub from "./pages/BrandHub";
 import ContentStudio from "./pages/ContentStudio";
@@ -30,27 +33,29 @@ const queryClient = new QueryClient();
 const Providers: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <HotToaster 
-          position="top-right"
-          toastOptions={{
-            duration: 4000,
-            style: {
-              background: 'rgba(0, 0, 0, 0.8)',
-              color: 'white',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              backdropFilter: 'blur(10px)',
-            },
-          }}
-        />
-        {/* <Sonner /> */}
-        <AuthProvider>
-          <RealtimeProvider>
-            {children}
-          </RealtimeProvider>
-        </AuthProvider>
-      </TooltipProvider>
+      <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+        <TooltipProvider>
+          <Toaster />
+          <HotToaster 
+            position="top-right"
+            toastOptions={{
+              duration: 4000,
+              style: {
+                background: 'rgba(0, 0, 0, 0.8)',
+                color: 'white',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                backdropFilter: 'blur(10px)',
+              },
+            }}
+          />
+          {/* <Sonner /> */}
+          <AuthProvider>
+            <RealtimeProvider>
+              {children}
+            </RealtimeProvider>
+          </AuthProvider>
+        </TooltipProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   </ErrorBoundary>
 );
@@ -59,18 +64,21 @@ const App = () => (
   <Providers>
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/clients" element={<Clients />} />
-        <Route path="/brand-hub" element={<BrandHub />} />
-        <Route path="/content-studio" element={<ContentStudio />} />
-        <Route path="/publisher" element={<PublisherPage />} />
-        <Route path="/assets" element={<AssetsPage />} />
-        <Route path="/scheduler" element={<Scheduler />} />
-        <Route path="/approvals" element={<Approvals />} />
-        <Route path="/analytics" element={<Analytics />} />
-        <Route path="/campaigns" element={<Campaigns />} />
-        <Route path="/automation" element={<Automation />} />
-        <Route path="/settings" element={<Settings />} />
+        <Route path="/" element={<Landing />} />
+        <Route path="/dashboard" element={<DashboardLayout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="clients" element={<Clients />} />
+          <Route path="brand-hub" element={<BrandHub />} />
+          <Route path="content-studio" element={<ContentStudio />} />
+          <Route path="publisher" element={<PublisherPage />} />
+          <Route path="assets" element={<AssetsPage />} />
+          <Route path="scheduler" element={<Scheduler />} />
+          <Route path="approvals" element={<Approvals />} />
+          <Route path="analytics" element={<Analytics />} />
+          <Route path="campaigns" element={<Campaigns />} />
+          <Route path="automation" element={<Automation />} />
+          <Route path="settings/*" element={<Settings />} />
+        </Route>
         <Route path="/design-system" element={<DesignSystemShowcase />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

@@ -17,7 +17,7 @@ import {
   ArrowUp,
   ArrowDown,
   Figma,
-  Dropbox,
+  FolderOpen,
   MessageSquare
 } from "lucide-react";
 
@@ -100,7 +100,7 @@ export function DashboardWidgets() {
         <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/10">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded bg-blue-500/20 flex items-center justify-center">
-              <Dropbox className="w-4 h-4 text-blue-400" />
+              <FolderOpen className="w-4 h-4 text-blue-400" />
             </div>
             <div>
               <p className="text-white text-sm font-medium">Product Photos - Q1</p>
