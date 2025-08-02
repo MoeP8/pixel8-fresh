@@ -1,5 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { useState } from 'react';
 import { CampaignAnalytics } from "@/hooks/useAnalytics";
@@ -17,11 +18,41 @@ export function CampaignPerformanceChart({ campaigns, loading }: CampaignPerform
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Campaign Performance</CardTitle>
-          <CardDescription>Brand performance across campaigns</CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <Skeleton className="h-6 w-48 mb-2" />
+              <Skeleton className="h-4 w-64" />
+            </div>
+            <div className="flex gap-2">
+              <Skeleton className="h-10 w-[140px]" />
+              <Skeleton className="h-10 w-[100px]" />
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="h-[400px] bg-muted animate-pulse rounded" />
+          <div className="h-[400px] space-y-4">
+            {/* Chart area skeleton */}
+            <div className="h-full relative">
+              {/* Y-axis labels */}
+              <div className="absolute left-0 top-0 h-full flex flex-col justify-between py-4">
+                {[...Array(6)].map((_, i) => (
+                  <Skeleton key={i} className="h-3 w-8" />
+                ))}
+              </div>
+              {/* Chart lines/bars */}
+              <div className="ml-12 h-full flex items-end justify-between px-4">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="flex flex-col items-center space-y-2">
+                    <Skeleton 
+                      className="w-12 bg-primary/20" 
+                      style={{ height: `${Math.random() * 200 + 50}px` }}
+                    />
+                    <Skeleton className="h-3 w-16" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
     );
