@@ -16,7 +16,10 @@ import {
   Edit3, 
   Trash2,
   CheckCircle2,
-  RefreshCw
+  RefreshCw,
+  AlertTriangle,
+  Loader2,
+  Check
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNotionTeam } from "@/hooks/useNotionTeam";
@@ -32,12 +35,78 @@ interface TeamMember {
   avatar?: string;
 }
 
+interface ValidationError {
+  field: string;
+  message: string;
+}
+
+interface InviteResult {
+  success: boolean;
+  message: string;
+}
+
 export function TeamAccessSection() {
   const { toast } = useToast();
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState<string>("creator");
+  const [isInviting, setIsInviting] = useState(false);
+  const [validationError, setValidationError] = useState<ValidationError | null>(null);
+  const [inviteResult, setInviteResult] = useState<InviteResult | null>(null);
   const { teamMembers, loading: teamLoading, error: teamError, refetch: refetchTeam } = useNotionTeam();
   const { clients, loading: clientsLoading } = useClients();
+
+  // Validation functions
+  const validateEmail = (email: string): ValidationError | null => {
+    if (!email || email.trim() === "") {
+      return {
+        field: "email",
+        message: "Email address is required"
+      };
+    }
+
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email)) {
+      return {
+        field: "email",
+        message: "Please enter a valid email address"
+      };
+    }
+
+    // Check if email already exists
+    const existingMember = teamMembers.find(member => 
+      member.email.toLowerCase() === email.toLowerCase()
+    );
+    if (existingMember) {
+      return {
+        field: "email",
+        message: "This email address is already in the team"
+      };
+    }
+
+    return null;
+  };
+
+  const clearValidationError = () => {
+    setValidationError(null);
+  };
+
+  const clearInviteResult = () => {
+    setInviteResult(null);
+  };
+
+  const handleEmailChange = (email: string) => {
+    setInviteEmail(email);
+    clearValidationError();
+    clearInviteResult();
+    
+    // Validate on change if not empty
+    if (email.trim()) {
+      const error = validateEmail(email);
+      if (error) {
+        setValidationError(error);
+      }
+    }
+  };
 
   const rolePermissions = {
     admin: {
@@ -58,16 +127,71 @@ export function TeamAccessSection() {
     }
   };
 
-  const handleInvite = () => {
-    if (!inviteEmail) return;
+  const handleInvite = async () => {
+    const error = validateEmail(inviteEmail);
     
-    toast({
-      title: "Invitation sent",
-      description: `Invitation sent to ${inviteEmail} as ${inviteRole}`,
-    });
+    if (error) {
+      setValidationError(error);
+      toast({
+        title: "Validation error",
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsInviting(true);
+    clearValidationError();
+    clearInviteResult();
     
-    setInviteEmail("");
-    setInviteRole("creator");
+    try {
+      // Simulate API call with delay
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Mock success/failure for demo (90% success rate)
+      const success = Math.random() > 0.1;
+      
+      const result: InviteResult = {
+        success,
+        message: success 
+          ? `Invitation sent to ${inviteEmail} as ${inviteRole}` 
+          : "Failed to send invitation. Please try again."
+      };
+      
+      setInviteResult(result);
+      
+      if (success) {
+        toast({
+          title: "Invitation sent",
+          description: result.message,
+        });
+        
+        // Reset form on success
+        setInviteEmail("");
+        setInviteRole("creator");
+      } else {
+        toast({
+          title: "Failed to send invitation",
+          description: result.message,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      const result: InviteResult = {
+        success: false,
+        message: "Network error occurred. Please check your connection and try again."
+      };
+      
+      setInviteResult(result);
+      
+      toast({
+        title: "Invitation failed",
+        description: result.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsInviting(false);
+    }
   };
 
   const getRoleBadge = (role: string) => {
@@ -128,7 +252,7 @@ export function TeamAccessSection() {
             Send an invitation to add a new team member
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           <div className="flex gap-4">
             <div className="flex-1">
               <Label htmlFor="inviteEmail" className="sr-only">Email address</Label>
@@ -137,7 +261,8 @@ export function TeamAccessSection() {
                 type="email"
                 placeholder="Enter email address..."
                 value={inviteEmail}
-                onChange={(e) => setInviteEmail(e.target.value)}
+                onChange={(e) => handleEmailChange(e.target.value)}
+                className={validationError ? 'border-destructive focus-visible:ring-destructive' : ''}
               />
             </div>
             <Select value={inviteRole} onValueChange={setInviteRole}>
@@ -151,11 +276,49 @@ export function TeamAccessSection() {
                 <SelectItem value="viewer">Viewer</SelectItem>
               </SelectContent>
             </Select>
-            <Button onClick={handleInvite} disabled={!inviteEmail} className="gap-2">
-              <Mail className="h-4 w-4" />
-              Send Invite
+            <Button 
+              onClick={handleInvite} 
+              disabled={!inviteEmail || !!validationError || isInviting}
+              className="gap-2"
+            >
+              {isInviting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Mail className="h-4 w-4" />
+              )}
+              {isInviting ? 'Sending...' : 'Send Invite'}
             </Button>
           </div>
+          
+          {/* Validation Error */}
+          {validationError && (
+            <div className="flex items-center gap-2 text-sm text-destructive">
+              <AlertTriangle className="h-4 w-4" />
+              <span>{validationError.message}</span>
+            </div>
+          )}
+          
+          {/* Invite Result */}
+          {inviteResult && (
+            <div className={`p-3 rounded-lg border ${
+              inviteResult.success 
+                ? 'border-success/20 bg-success/5' 
+                : 'border-destructive/20 bg-destructive/5'
+            }`}>
+              <div className="flex items-center gap-2">
+                {inviteResult.success ? (
+                  <Check className="h-4 w-4 text-success" />
+                ) : (
+                  <AlertTriangle className="h-4 w-4 text-destructive" />
+                )}
+                <p className={`text-sm font-medium ${
+                  inviteResult.success ? 'text-success' : 'text-destructive'
+                }`}>
+                  {inviteResult.message}
+                </p>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
