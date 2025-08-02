@@ -16,6 +16,7 @@ import {
   Star, 
   Search,
   User,
+  Users,
   Settings,
   Bell,
   TrendingUp,
@@ -27,7 +28,8 @@ import {
   Play,
   Pause,
   Mail,
-  Phone
+  Phone,
+  CheckCircle
 } from "lucide-react";
 
 export function DesignSystemShowcase() {
