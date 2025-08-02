@@ -19,7 +19,10 @@ import {
   Trash2,
   Play,
   Pause,
-  Save
+  Save,
+  AlertTriangle,
+  Loader2,
+  CheckCircle2
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -34,9 +37,25 @@ interface AutomationRule {
   triggerCount: number;
 }
 
+interface ValidationError {
+  field: string;
+  message: string;
+}
+
+interface NewRuleForm {
+  name: string;
+  type: string;
+  trigger: string;
+  action: string;
+  threshold: string;
+  timeframe: string;
+}
+
 export function AutomationRulesSection() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [isCreatingRule, setIsCreatingRule] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<Record<string, ValidationError>>({});
   const [rules, setRules] = useState<AutomationRule[]>([
     {
       id: "1",
@@ -80,7 +99,7 @@ export function AutomationRulesSection() {
     }
   ]);
 
-  const [newRule, setNewRule] = useState({
+  const [newRule, setNewRule] = useState<NewRuleForm>({
     name: "",
     type: "performance",
     trigger: "",
@@ -89,14 +108,239 @@ export function AutomationRulesSection() {
     timeframe: "1h"
   });
 
+  // Validation functions
+  const validateField = (field: string, value: string): ValidationError | null => {
+    switch (field) {
+      case 'name':
+        if (!value || value.trim() === "") {
+          return { field, message: "Rule name is required" };
+        }
+        if (value.length < 3) {
+          return { field, message: "Rule name must be at least 3 characters" };
+        }
+        if (value.length > 100) {
+          return { field, message: "Rule name must be less than 100 characters" };
+        }
+        // Check for duplicate names
+        const existingRule = rules.find(rule => 
+          rule.name.toLowerCase() === value.toLowerCase()
+        );
+        if (existingRule) {
+          return { field, message: "A rule with this name already exists" };
+        }
+        break;
+      
+      case 'trigger':
+        if (!value || value.trim() === "") {
+          return { field, message: "Please select a trigger condition" };
+        }
+        break;
+      
+      case 'action':
+        if (!value || value.trim() === "") {
+          return { field, message: "Please select an action" };
+        }
+        break;
+      
+      case 'threshold':
+        if (!value || value.trim() === "") {
+          return { field, message: "Threshold value is required" };
+        }
+        
+        // Validate based on trigger type
+        if (newRule.trigger === 'engagement_rate') {
+          const num = parseFloat(value.replace('%', ''));
+          if (isNaN(num) || num < 0 || num > 100) {
+            return { field, message: "Engagement rate must be between 0% and 100%" };
+          }
+        } else if (newRule.trigger === 'roas' || newRule.trigger === 'cpa') {
+          const num = parseFloat(value.replace('$', ''));
+          if (isNaN(num) || num < 0) {
+            return { field, message: "Amount must be a positive number" };
+          }
+        } else if (newRule.trigger === 'clicks' || newRule.trigger === 'impressions') {
+          const num = parseInt(value);
+          if (isNaN(num) || num < 1) {
+            return { field, message: "Count must be a positive integer" };
+          }
+        }
+        break;
+    }
+    return null;
+  };
+
+  const validateNewRule = (): boolean => {
+    const errors: Record<string, ValidationError> = {};
+    
+    Object.entries(newRule).forEach(([field, value]) => {
+      if (field !== 'type' && field !== 'timeframe') {
+        const error = validateField(field, value);
+        if (error) {
+          errors[field] = error;
+        }
+      }
+    });
+    
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const clearValidationError = (field: string) => {
+    setValidationErrors(prev => {
+      const newErrors = { ...prev };
+      delete newErrors[field];
+      return newErrors;
+    });
+  };
+
+  const handleFieldChange = (field: keyof NewRuleForm, value: string) => {
+    setNewRule(prev => ({ ...prev, [field]: value }));
+    clearValidationError(field);
+    
+    // Clear threshold validation when trigger changes
+    if (field === 'trigger') {
+      clearValidationError('threshold');
+      setNewRule(prev => ({ ...prev, threshold: '' }));
+    }
+    
+    // Validate on change
+    if (value.trim()) {
+      const error = validateField(field, value);
+      if (error) {
+        setValidationErrors(prev => ({ ...prev, [field]: error }));
+      }
+    }
+  };
+
+  const handleCreateRule = async () => {
+    if (!validateNewRule()) {
+      toast({
+        title: "Validation errors",
+        description: "Please fix the errors below before creating the rule.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsCreatingRule(true);
+    
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Add the new rule
+      const newRuleObj: AutomationRule = {
+        id: (rules.length + 1).toString(),
+        name: newRule.name,
+        type: newRule.type as "performance" | "content" | "scheduling",
+        trigger: getTriggerText(newRule.trigger, newRule.threshold, newRule.timeframe),
+        action: getActionText(newRule.action),
+        isActive: true,
+        triggerCount: 0
+      };
+      
+      setRules(prev => [...prev, newRuleObj]);
+      
+      // Reset form
+      setNewRule({
+        name: "",
+        type: "performance",
+        trigger: "",
+        action: "",
+        threshold: "",
+        timeframe: "1h"
+      });
+      
+      toast({
+        title: "Rule created",
+        description: "Your automation rule has been created successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Creation failed",
+        description: "Failed to create rule. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCreatingRule(false);
+    }
+  };
+
+  const getTriggerText = (trigger: string, threshold: string, timeframe: string): string => {
+    const timeframes = {
+      '15m': '15 minutes',
+      '1h': '1 hour', 
+      '6h': '6 hours',
+      '24h': '24 hours',
+      '7d': '7 days'
+    };
+    
+    const triggers = {
+      'engagement_rate': `Engagement rate exceeds ${threshold} in ${timeframes[timeframe as keyof typeof timeframes]}`,
+      'roas': `ROAS falls below ${threshold}`,
+      'cpa': `CPA exceeds ${threshold}`,
+      'clicks': `Clicks exceed ${threshold} in ${timeframes[timeframe as keyof typeof timeframes]}`,
+      'impressions': `Impressions exceed ${threshold} in ${timeframes[timeframe as keyof typeof timeframes]}`
+    };
+    
+    return triggers[trigger as keyof typeof triggers] || trigger;
+  };
+
+  const getActionText = (action: string): string => {
+    const actions = {
+      'pause_campaign': 'Pause campaign and send alert',
+      'boost_post': 'Boost post with default budget',
+      'send_alert': 'Send notification alert',
+      'adjust_budget': 'Automatically adjust budget',
+      'change_bid': 'Change bid strategy'
+    };
+    
+    return actions[action as keyof typeof actions] || action;
+  };
+
+  const getThresholdPlaceholder = (trigger: string): string => {
+    const placeholders = {
+      'engagement_rate': 'e.g., 5%',
+      'roas': 'e.g., $3.50',
+      'cpa': 'e.g., $25',
+      'clicks': 'e.g., 100',
+      'impressions': 'e.g., 10000'
+    };
+    
+    return placeholders[trigger as keyof typeof placeholders] || 'Enter value...';
+  };
+
+  const getThresholdHint = (trigger: string): string => {
+    const hints = {
+      'engagement_rate': 'Enter percentage (0-100)',
+      'roas': 'Enter dollar amount (e.g., 3.50)',
+      'cpa': 'Enter cost per acquisition',
+      'clicks': 'Enter number of clicks',
+      'impressions': 'Enter number of impressions'
+    };
+    
+    return hints[trigger as keyof typeof hints] || '';
+  };
+
   const handleSave = async () => {
     setIsLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setIsLoading(false);
-    toast({
-      title: "Automation rules updated",
-      description: "Your automation settings have been saved.",
-    });
+    
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      toast({
+        title: "Automation rules updated",
+        description: "Your automation settings have been saved.",
+      });
+    } catch (error) {
+      toast({
+        title: "Save failed", 
+        description: "Failed to save automation rules. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const toggleRule = (id: string) => {
@@ -210,19 +454,26 @@ export function AutomationRulesSection() {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="ruleName">Rule Name</Label>
+              <Label htmlFor="ruleName">Rule Name *</Label>
               <Input 
                 id="ruleName"
                 placeholder="e.g., Auto-pause low ROAS campaigns"
                 value={newRule.name}
-                onChange={(e) => setNewRule(prev => ({ ...prev, name: e.target.value }))}
+                onChange={(e) => handleFieldChange('name', e.target.value)}
+                className={validationErrors.name ? 'border-destructive focus-visible:ring-destructive' : ''}
               />
+              {validationErrors.name && (
+                <div className="flex items-center gap-2 text-sm text-destructive">
+                  <AlertTriangle className="h-4 w-4" />
+                  <span>{validationErrors.name.message}</span>
+                </div>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="ruleType">Rule Type</Label>
               <Select 
                 value={newRule.type}
-                onValueChange={(value) => setNewRule(prev => ({ ...prev, type: value }))}
+                onValueChange={(value) => handleFieldChange('type', value)}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -238,9 +489,14 @@ export function AutomationRulesSection() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="trigger">Trigger Condition</Label>
-              <Select>
-                <SelectTrigger>
+              <Label htmlFor="trigger">Trigger Condition *</Label>
+              <Select 
+                value={newRule.trigger}
+                onValueChange={(value) => handleFieldChange('trigger', value)}
+              >
+                <SelectTrigger 
+                  className={validationErrors.trigger ? 'border-destructive focus-visible:ring-destructive' : ''}
+                >
                   <SelectValue placeholder="Select trigger..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -251,21 +507,39 @@ export function AutomationRulesSection() {
                   <SelectItem value="impressions">Impressions</SelectItem>
                 </SelectContent>
               </Select>
+              {validationErrors.trigger && (
+                <div className="flex items-center gap-2 text-sm text-destructive">
+                  <AlertTriangle className="h-4 w-4" />
+                  <span>{validationErrors.trigger.message}</span>
+                </div>
+              )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="threshold">Threshold</Label>
+              <Label htmlFor="threshold">Threshold *</Label>
               <Input 
                 id="threshold"
-                placeholder="e.g., 5% or $50"
+                placeholder={getThresholdPlaceholder(newRule.trigger)}
                 value={newRule.threshold}
-                onChange={(e) => setNewRule(prev => ({ ...prev, threshold: e.target.value }))}
+                onChange={(e) => handleFieldChange('threshold', e.target.value)}
+                className={validationErrors.threshold ? 'border-destructive focus-visible:ring-destructive' : ''}
               />
+              {validationErrors.threshold && (
+                <div className="flex items-center gap-2 text-sm text-destructive">
+                  <AlertTriangle className="h-4 w-4" />
+                  <span>{validationErrors.threshold.message}</span>
+                </div>
+              )}
+              {!validationErrors.threshold && newRule.trigger && (
+                <p className="text-xs text-muted-foreground">
+                  {getThresholdHint(newRule.trigger)}
+                </p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="timeframe">Timeframe</Label>
               <Select 
                 value={newRule.timeframe}
-                onValueChange={(value) => setNewRule(prev => ({ ...prev, timeframe: value }))}
+                onValueChange={(value) => handleFieldChange('timeframe', value)}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -282,9 +556,14 @@ export function AutomationRulesSection() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="action">Action to Take</Label>
-            <Select>
-              <SelectTrigger>
+            <Label htmlFor="action">Action to Take *</Label>
+            <Select 
+              value={newRule.action}
+              onValueChange={(value) => handleFieldChange('action', value)}
+            >
+              <SelectTrigger
+                className={validationErrors.action ? 'border-destructive focus-visible:ring-destructive' : ''}
+              >
                 <SelectValue placeholder="Select action..." />
               </SelectTrigger>
               <SelectContent>
@@ -295,11 +574,25 @@ export function AutomationRulesSection() {
                 <SelectItem value="change_bid">Change Bid Strategy</SelectItem>
               </SelectContent>
             </Select>
+            {validationErrors.action && (
+              <div className="flex items-center gap-2 text-sm text-destructive">
+                <AlertTriangle className="h-4 w-4" />
+                <span>{validationErrors.action.message}</span>
+              </div>
+            )}
           </div>
 
-          <Button className="gap-2">
-            <Plus className="h-4 w-4" />
-            Create Rule
+          <Button 
+            onClick={handleCreateRule}
+            disabled={isCreatingRule || Object.keys(validationErrors).length > 0}
+            className="gap-2"
+          >
+            {isCreatingRule ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Plus className="h-4 w-4" />
+            )}
+            {isCreatingRule ? 'Creating...' : 'Create Rule'}
           </Button>
         </CardContent>
       </Card>
@@ -382,7 +675,11 @@ export function AutomationRulesSection() {
 
           <div className="flex justify-end pt-6 border-t border-border">
             <Button onClick={handleSave} disabled={isLoading} className="gap-2">
-              <Save className="h-4 w-4" />
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Save className="h-4 w-4" />
+              )}
               {isLoading ? "Saving..." : "Save Changes"}
             </Button>
           </div>
