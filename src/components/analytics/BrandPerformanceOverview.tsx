@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { TrendingUp, TrendingDown, Target, MessageCircle } from "lucide-react";
 import { BrandPerformanceMetric } from "@/hooks/useAnalytics";
 
@@ -16,12 +17,15 @@ export function BrandPerformanceOverview({ metrics, loading }: BrandPerformanceO
         {[...Array(4)].map((_, i) => (
           <Card key={i}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <div className="h-4 w-20 bg-muted animate-pulse rounded" />
-              <div className="h-4 w-4 bg-muted animate-pulse rounded" />
+              <Skeleton className="h-4 w-20" />
+              <Skeleton className="h-4 w-4 rounded-full" />
             </CardHeader>
             <CardContent>
-              <div className="h-8 w-16 bg-muted animate-pulse rounded mb-2" />
-              <div className="h-3 w-full bg-muted animate-pulse rounded" />
+              <Skeleton className="h-8 w-16 mb-2" />
+              <div className="flex items-center justify-between mt-2">
+                <Skeleton className="h-2 flex-1 mr-2" />
+                <Skeleton className="h-6 w-16" />
+              </div>
             </CardContent>
           </Card>
         ))}
