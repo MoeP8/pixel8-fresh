@@ -77,8 +77,8 @@ const App = () => (
         <Route path="/approvals" element={<Approvals />} />
         <Route path="/automation" element={<Automation />} />
         <Route path="/settings" element={<Settings />} />
-        <Route path="/dashboard" element={<DashboardLayout />}>
-          <Route index element={<Dashboard />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/dashboard-old" element={<DashboardLayout />}>
           <Route path="clients" element={<Clients />} />
           <Route path="brand-hub" element={<BrandHub />} />
           <Route path="content-studio" element={<ContentStudio />} />
