@@ -65,6 +65,11 @@ const App = () => (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Landing />} />
+        {/* Direct routes without dashboard wrapper */}
+        <Route path="/brand-hub" element={<BrandHub />} />
+        <Route path="/content-studio" element={<ContentStudio />} />
+        <Route path="/publisher" element={<PublisherPage />} />
+        <Route path="/analytics" element={<Analytics />} />
         <Route path="/dashboard" element={<DashboardLayout />}>
           <Route index element={<Dashboard />} />
           <Route path="clients" element={<Clients />} />
