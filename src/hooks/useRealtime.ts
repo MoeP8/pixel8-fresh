@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js';
+import { RealtimeChannel } from '@supabase/supabase-js';
+import type { PostgrestSingleResponse } from '@supabase/postgrest-js';
 import { useToast } from '@/hooks/use-toast';
 
 export interface RealtimePresence {
@@ -113,7 +114,7 @@ export function useRealtime() {
         .on(
           'postgres_changes',
           { event: '*', schema: 'public', table: 'scheduled_posts' },
-          (payload: RealtimePostgresChangesPayload<any>) => {
+          (payload: any) => {
             const { eventType, new: newRecord, old: oldRecord } = payload;
             
             if (eventType === 'UPDATE' && newRecord && oldRecord) {
