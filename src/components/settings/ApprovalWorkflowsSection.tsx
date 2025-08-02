@@ -18,7 +18,8 @@ import {
   Edit3,
   Trash2,
   Settings,
-  Save
+  Save,
+  Loader2
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -34,9 +35,21 @@ interface ApprovalWorkflow {
   status: "active" | "inactive";
 }
 
+interface ValidationError {
+  field: string;
+  message: string;
+}
+
+interface EmailTemplate {
+  approvalRequest: string;
+  approvalReminder: string;
+  approvalConfirmation: string;
+}
+
 export function ApprovalWorkflowsSection() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<Record<string, ValidationError>>({});
   const [workflows, setWorkflows] = useState<ApprovalWorkflow[]>([
     {
       id: "1",
@@ -83,14 +96,152 @@ export function ApprovalWorkflowsSection() {
     reminderFrequency: "daily"
   });
 
-  const handleSave = async () => {
-    setIsLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setIsLoading(false);
-    toast({
-      title: "Approval workflows updated",
-      description: "Your approval workflow settings have been saved.",
+  const [emailTemplates, setEmailTemplates] = useState<EmailTemplate>({
+    approvalRequest: "Hi {approver_name}, New content from {creator_name} is ready for your review. Please review and approve by {deadline}.",
+    approvalReminder: "Reminder: Content approval needed for {content_title}. Deadline: {deadline}",
+    approvalConfirmation: "Content '{content_title}' has been approved and is scheduled for {publish_date}."
+  });
+
+  // Validation functions
+  const validateApprovalDays = (days: number): ValidationError | null => {
+    if (isNaN(days) || days < 1 || days > 7) {
+      return { field: 'autoApprovalDays', message: 'Auto-approval days must be between 1 and 7' };
+    }
+    return null;
+  };
+
+  const validateWorkflowName = (name: string, workflowId?: string): ValidationError | null => {
+    if (!name || name.trim() === "") {
+      return { field: 'workflowName', message: 'Workflow name is required' };
+    }
+    if (name.length < 3) {
+      return { field: 'workflowName', message: 'Workflow name must be at least 3 characters' };
+    }
+    if (name.length > 100) {
+      return { field: 'workflowName', message: 'Workflow name must be less than 100 characters' };
+    }
+    
+    // Check for duplicate workflow names
+    const duplicate = workflows.find(w => 
+      w.id !== workflowId && w.name.toLowerCase() === name.toLowerCase()
+    );
+    if (duplicate) {
+      return { field: 'workflowName', message: 'A workflow with this name already exists' };
+    }
+    return null;
+  };
+
+  const validateEmailTemplate = (template: string, field: string): ValidationError | null => {
+    if (!template || template.trim() === "") {
+      return { field, message: 'Email template is required' };
+    }
+    if (template.length < 10) {
+      return { field, message: 'Email template must be at least 10 characters' };
+    }
+    if (template.length > 1000) {
+      return { field, message: 'Email template must be less than 1000 characters' };
+    }
+    
+    // Check for required variables based on template type
+    const requiredVars = {
+      approvalRequest: ['{approver_name}', '{creator_name}'],
+      approvalReminder: ['{content_title}', '{deadline}'],
+      approvalConfirmation: ['{content_title}']
+    };
+    
+    const required = requiredVars[field as keyof typeof requiredVars];
+    if (required) {
+      const missing = required.filter(variable => !template.includes(variable));
+      if (missing.length > 0) {
+        return { 
+          field, 
+          message: `Template must include: ${missing.join(', ')}` 
+        };
+      }
+    }
+    
+    return null;
+  };
+
+  const clearValidationError = (field: string) => {
+    setValidationErrors(prev => {
+      const newErrors = { ...prev };
+      delete newErrors[field];
+      return newErrors;
     });
+  };
+
+  const handleApprovalDaysChange = (days: number) => {
+    setDefaultSettings(prev => ({ ...prev, autoApprovalDays: days }));
+    
+    const error = validateApprovalDays(days);
+    if (error) {
+      setValidationErrors(prev => ({ ...prev, autoApprovalDays: error }));
+    } else {
+      clearValidationError('autoApprovalDays');
+    }
+  };
+
+  const handleEmailTemplateChange = (field: keyof EmailTemplate, value: string) => {
+    setEmailTemplates(prev => ({ ...prev, [field]: value }));
+    
+    const error = validateEmailTemplate(value, field);
+    if (error) {
+      setValidationErrors(prev => ({ ...prev, [field]: error }));
+    } else {
+      clearValidationError(field);
+    }
+  };
+
+  const validateAllFields = (): boolean => {
+    const errors: Record<string, ValidationError> = {};
+    
+    // Validate auto-approval days
+    const daysError = validateApprovalDays(defaultSettings.autoApprovalDays);
+    if (daysError) {
+      errors.autoApprovalDays = daysError;
+    }
+    
+    // Validate email templates
+    Object.entries(emailTemplates).forEach(([field, template]) => {
+      const error = validateEmailTemplate(template, field);
+      if (error) {
+        errors[field] = error;
+      }
+    });
+    
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleSave = async () => {
+    if (!validateAllFields()) {
+      toast({
+        title: "Validation errors",
+        description: "Please fix the errors below before saving.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      toast({
+        title: "Approval workflows updated",
+        description: "Your approval workflow settings have been saved successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Save failed",
+        description: "Failed to save approval workflows. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const getStatusBadge = (status: string) => {
@@ -198,18 +349,25 @@ export function ApprovalWorkflowsSection() {
 
             {defaultSettings.autoApprovalEnabled && (
               <div className="ml-4 space-y-2">
-                <Label htmlFor="autoApprovalDays">Auto-approve after (days)</Label>
+                <Label htmlFor="autoApprovalDays">Auto-approve after (days) *</Label>
                 <Input 
                   id="autoApprovalDays"
                   type="number"
                   min="1"
                   max="7"
                   value={defaultSettings.autoApprovalDays}
-                  onChange={(e) => 
-                    setDefaultSettings(prev => ({ ...prev, autoApprovalDays: parseInt(e.target.value) }))
-                  }
-                  className="w-24"
+                  onChange={(e) => handleApprovalDaysChange(parseInt(e.target.value) || 0)}
+                  className={`w-24 ${validationErrors.autoApprovalDays ? 'border-destructive focus-visible:ring-destructive' : ''}`}
                 />
+                {validationErrors.autoApprovalDays && (
+                  <div className="flex items-center gap-2 text-sm text-destructive">
+                    <AlertTriangle className="h-4 w-4" />
+                    <span>{validationErrors.autoApprovalDays.message}</span>
+                  </div>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  Content will be automatically approved after this many days
+                </p>
               </div>
             )}
           </div>
@@ -359,34 +517,55 @@ export function ApprovalWorkflowsSection() {
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-4">
-            <div>
-              <Label htmlFor="approvalRequest">Approval Request Template</Label>
+            <div className="space-y-2">
+              <Label htmlFor="approvalRequest">Approval Request Template *</Label>
               <Textarea
                 id="approvalRequest"
                 placeholder="Customize the email sent when content needs approval..."
-                defaultValue="Hi {approver_name}, New content from {creator_name} is ready for your review. Please review and approve by {deadline}."
-                className="mt-2"
+                value={emailTemplates.approvalRequest}
+                onChange={(e) => handleEmailTemplateChange('approvalRequest', e.target.value)}
+                className={`mt-2 ${validationErrors.approvalRequest ? 'border-destructive focus-visible:ring-destructive' : ''}`}
               />
+              {validationErrors.approvalRequest && (
+                <div className="flex items-center gap-2 text-sm text-destructive">
+                  <AlertTriangle className="h-4 w-4" />
+                  <span>{validationErrors.approvalRequest.message}</span>
+                </div>
+              )}
             </div>
 
-            <div>
-              <Label htmlFor="approvalReminder">Approval Reminder Template</Label>
+            <div className="space-y-2">
+              <Label htmlFor="approvalReminder">Approval Reminder Template *</Label>
               <Textarea
                 id="approvalReminder"
                 placeholder="Customize the reminder email..."
-                defaultValue="Reminder: Content approval needed for {content_title}. Deadline: {deadline}"
-                className="mt-2"
+                value={emailTemplates.approvalReminder}
+                onChange={(e) => handleEmailTemplateChange('approvalReminder', e.target.value)}
+                className={`mt-2 ${validationErrors.approvalReminder ? 'border-destructive focus-visible:ring-destructive' : ''}`}
               />
+              {validationErrors.approvalReminder && (
+                <div className="flex items-center gap-2 text-sm text-destructive">
+                  <AlertTriangle className="h-4 w-4" />
+                  <span>{validationErrors.approvalReminder.message}</span>
+                </div>
+              )}
             </div>
 
-            <div>
-              <Label htmlFor="approvalConfirmation">Approval Confirmation Template</Label>
+            <div className="space-y-2">
+              <Label htmlFor="approvalConfirmation">Approval Confirmation Template *</Label>
               <Textarea
                 id="approvalConfirmation"
                 placeholder="Customize the confirmation email..."
-                defaultValue="Content '{content_title}' has been approved and is scheduled for {publish_date}."
-                className="mt-2"
+                value={emailTemplates.approvalConfirmation}
+                onChange={(e) => handleEmailTemplateChange('approvalConfirmation', e.target.value)}
+                className={`mt-2 ${validationErrors.approvalConfirmation ? 'border-destructive focus-visible:ring-destructive' : ''}`}
               />
+              {validationErrors.approvalConfirmation && (
+                <div className="flex items-center gap-2 text-sm text-destructive">
+                  <AlertTriangle className="h-4 w-4" />
+                  <span>{validationErrors.approvalConfirmation.message}</span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -405,8 +584,16 @@ export function ApprovalWorkflowsSection() {
           </div>
 
           <div className="flex justify-end">
-            <Button onClick={handleSave} disabled={isLoading} className="gap-2">
-              <Save className="h-4 w-4" />
+            <Button 
+              onClick={handleSave} 
+              disabled={isLoading || Object.keys(validationErrors).length > 0} 
+              className="gap-2"
+            >
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Save className="h-4 w-4" />
+              )}
               {isLoading ? "Saving..." : "Save Templates"}
             </Button>
           </div>

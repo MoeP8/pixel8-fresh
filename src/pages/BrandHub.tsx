@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { GlassCard } from '@/components/ui/glass-card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -123,9 +123,9 @@ const BrandHub = () => {
         <Skeleton className="h-8 w-48" />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {Array.from({ length: 6 }).map((_, i) => (
-            <Card key={i} className="p-4">
+            <GlassCard key={i} className="p-4">
               <Skeleton className="h-32 w-full" />
-            </Card>
+            </GlassCard>
           ))}
         </div>
       </div>
@@ -181,34 +181,32 @@ const BrandHub = () => {
       {selectedClient && selectedClientData && (
         <>
           {/* Client Info Card */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                    <Building2 className="h-6 w-6 text-primary" />
-                  </div>
-                  <div>
-                    <CardTitle>{selectedClientData.name}</CardTitle>
-                    <p className="text-muted-foreground">
-                      {selectedClientData.description || 'No description available'}
-                    </p>
-                  </div>
+          <GlassCard className="p-6" variant="subtle" hover glow>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                  <Building2 className="h-6 w-6 text-primary" />
                 </div>
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline">
-                    {brandAssets.length} Assets
-                  </Badge>
-                  <Badge variant="outline">
-                    {brandColors.length} Colors
-                  </Badge>
-                  <Badge variant="outline">
-                    {contentPillars.length} Pillars
-                  </Badge>
+                <div>
+                  <h3 className="text-lg font-semibold text-foreground">{selectedClientData.name}</h3>
+                  <p className="text-muted-foreground">
+                    {selectedClientData.description || 'No description available'}
+                  </p>
                 </div>
               </div>
-            </CardHeader>
-          </Card>
+              <div className="flex items-center gap-2">
+                <Badge variant="outline">
+                  {brandAssets.length} Assets
+                </Badge>
+                <Badge variant="outline">
+                  {brandColors.length} Colors
+                </Badge>
+                <Badge variant="outline">
+                  {contentPillars.length} Pillars
+                </Badge>
+              </div>
+            </div>
+          </GlassCard>
 
           {/* Brand Management Tabs */}
           <Tabs defaultValue="colors" className="space-y-6">
@@ -262,21 +260,19 @@ const BrandHub = () => {
             </TabsContent>
 
             <TabsContent value="typography">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+              <GlassCard className="p-6" variant="subtle">
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
                     <Type className="h-5 w-5" />
                     Typography Guidelines
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <EmptyState
-                    icon={<Type className="h-12 w-12 text-muted-foreground" />}
-                    title="Typography Management"
-                    description="Typography management features coming soon. Define font families, sizes, and usage guidelines."
-                  />
-                </CardContent>
-              </Card>
+                  </h3>
+                </div>
+                <EmptyState
+                  icon={<Type className="h-12 w-12 text-muted-foreground" />}
+                  title="Typography Management"
+                  description="Typography management features coming soon. Define font families, sizes, and usage guidelines."
+                />
+              </GlassCard>
             </TabsContent>
 
             <TabsContent value="voice">
@@ -288,57 +284,51 @@ const BrandHub = () => {
             </TabsContent>
 
             <TabsContent value="content">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+              <GlassCard className="p-6" variant="subtle">
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
                     <Target className="h-5 w-5" />
                     Content Strategy
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <EmptyState
-                    icon={<Target className="h-12 w-12 text-muted-foreground" />}
-                    title="Content Pillars & Strategy"
-                    description="Content pillar management features coming soon. Define your content strategy and messaging frameworks."
-                  />
-                </CardContent>
-              </Card>
+                  </h3>
+                </div>
+                <EmptyState
+                  icon={<Target className="h-12 w-12 text-muted-foreground" />}
+                  title="Content Pillars & Strategy"
+                  description="Content pillar management features coming soon. Define your content strategy and messaging frameworks."
+                />
+              </GlassCard>
             </TabsContent>
 
             <TabsContent value="hashtags">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+              <GlassCard className="p-6" variant="subtle">
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
                     <Hash className="h-5 w-5" />
                     Hashtag Strategies
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <EmptyState
-                    icon={<Hash className="h-12 w-12 text-muted-foreground" />}
-                    title="Hashtag Strategy Management"
-                    description="Hashtag strategy features coming soon. Create platform-specific hashtag collections and performance tracking."
-                  />
-                </CardContent>
-              </Card>
+                  </h3>
+                </div>
+                <EmptyState
+                  icon={<Hash className="h-12 w-12 text-muted-foreground" />}
+                  title="Hashtag Strategy Management"
+                  description="Hashtag strategy features coming soon. Create platform-specific hashtag collections and performance tracking."
+                />
+              </GlassCard>
             </TabsContent>
 
             <TabsContent value="compliance">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+              <GlassCard className="p-6" variant="subtle">
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
                     <Shield className="h-5 w-5" />
                     Compliance & Guidelines
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <EmptyState
-                    icon={<Shield className="h-12 w-12 text-muted-foreground" />}
-                    title="Compliance Management"
-                    description="Compliance features coming soon. Manage industry regulations, prohibited terms, and approval workflows."
-                  />
-                </CardContent>
-              </Card>
+                  </h3>
+                </div>
+                <EmptyState
+                  icon={<Shield className="h-12 w-12 text-muted-foreground" />}
+                  title="Compliance Management"
+                  description="Compliance features coming soon. Manage industry regulations, prohibited terms, and approval workflows."
+                />
+              </GlassCard>
             </TabsContent>
           </Tabs>
         </>

@@ -11,6 +11,7 @@ import { Suspense, lazy } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import "./styles/design-system.css";
 import "./styles/responsive-enhancements.css";
+import "./styles/mobile-navigation.css";
 
 // Lazy load pages for code splitting
 const Landing = lazy(() => import("./pages/Landing"));

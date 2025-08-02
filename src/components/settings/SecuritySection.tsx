@@ -19,13 +19,20 @@ import {
   AlertTriangle,
   CheckCircle2,
   RefreshCw,
-  Save
+  Save,
+  Loader2
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+
+interface ValidationError {
+  field: string;
+  message: string;
+}
 
 export function SecuritySection() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<Record<string, ValidationError>>({});
   const [showBackupCodes, setShowBackupCodes] = useState(false);
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
   const [securitySettings, setSecuritySettings] = useState({
@@ -59,14 +66,171 @@ export function SecuritySection() {
     "6a1e9c5b"
   ];
 
-  const handleSave = async () => {
-    setIsLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setIsLoading(false);
-    toast({
-      title: "Security settings updated",
-      description: "Your security preferences have been saved.",
+  // Validation functions
+  const validatePasswordLength = (length: number): ValidationError | null => {
+    if (isNaN(length) || length < 8 || length > 32) {
+      return { field: 'minLength', message: 'Password length must be between 8 and 32 characters' };
+    }
+    return null;
+  };
+
+  const validateRetentionPeriod = (months: number): ValidationError | null => {
+    if (isNaN(months) || months < 12 || months > 84) {
+      return { field: 'retentionPeriod', message: 'Retention period must be between 12 and 84 months' };
+    }
+    return null;
+  };
+
+  const validateMaxSessions = (sessions: number): ValidationError | null => {
+    if (isNaN(sessions) || sessions < 1 || sessions > 10) {
+      return { field: 'maxSessions', message: 'Maximum sessions must be between 1 and 10' };
+    }
+    return null;
+  };
+
+  const validateSessionTimeout = (hours: number): ValidationError | null => {
+    if (isNaN(hours) || hours < 1 || hours > 168) {
+      return { field: 'sessionTimeout', message: 'Session timeout must be between 1 and 168 hours (7 days)' };
+    }
+    return null;
+  };
+
+  const clearValidationError = (field: string) => {
+    setValidationErrors(prev => {
+      const newErrors = { ...prev };
+      delete newErrors[field];
+      return newErrors;
     });
+  };
+
+  const handlePasswordLengthChange = (length: number) => {
+    setSecuritySettings(prev => ({
+      ...prev,
+      passwordRequirements: {
+        ...prev.passwordRequirements,
+        minLength: length
+      }
+    }));
+
+    const error = validatePasswordLength(length);
+    if (error) {
+      setValidationErrors(prev => ({ ...prev, minLength: error }));
+    } else {
+      clearValidationError('minLength');
+    }
+  };
+
+  const handleRetentionPeriodChange = (months: number) => {
+    setSecuritySettings(prev => ({
+      ...prev,
+      dataRetention: {
+        ...prev.dataRetention,
+        retentionPeriod: months
+      }
+    }));
+
+    const error = validateRetentionPeriod(months);
+    if (error) {
+      setValidationErrors(prev => ({ ...prev, retentionPeriod: error }));
+    } else {
+      clearValidationError('retentionPeriod');
+    }
+  };
+
+  const handleMaxSessionsChange = (sessions: number) => {
+    setSecuritySettings(prev => ({
+      ...prev,
+      sessionSettings: {
+        ...prev.sessionSettings,
+        maxSessions: sessions
+      }
+    }));
+
+    const error = validateMaxSessions(sessions);
+    if (error) {
+      setValidationErrors(prev => ({ ...prev, maxSessions: error }));
+    } else {
+      clearValidationError('maxSessions');
+    }
+  };
+
+  const handleSessionTimeoutChange = (hours: number) => {
+    setSecuritySettings(prev => ({
+      ...prev,
+      sessionSettings: {
+        ...prev.sessionSettings,
+        sessionTimeout: hours
+      }
+    }));
+
+    const error = validateSessionTimeout(hours);
+    if (error) {
+      setValidationErrors(prev => ({ ...prev, sessionTimeout: error }));
+    } else {
+      clearValidationError('sessionTimeout');
+    }
+  };
+
+  const validateAllFields = (): boolean => {
+    const errors: Record<string, ValidationError> = {};
+    
+    // Validate password requirements
+    const lengthError = validatePasswordLength(securitySettings.passwordRequirements.minLength);
+    if (lengthError) {
+      errors.minLength = lengthError;
+    }
+
+    // Validate session settings
+    const maxSessionsError = validateMaxSessions(securitySettings.sessionSettings.maxSessions);
+    if (maxSessionsError) {
+      errors.maxSessions = maxSessionsError;
+    }
+
+    const sessionTimeoutError = validateSessionTimeout(securitySettings.sessionSettings.sessionTimeout);
+    if (sessionTimeoutError) {
+      errors.sessionTimeout = sessionTimeoutError;
+    }
+
+    // Validate data retention if enabled
+    if (securitySettings.dataRetention.autoDelete) {
+      const retentionError = validateRetentionPeriod(securitySettings.dataRetention.retentionPeriod);
+      if (retentionError) {
+        errors.retentionPeriod = retentionError;
+      }
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleSave = async () => {
+    if (!validateAllFields()) {
+      toast({
+        title: "Validation errors",
+        description: "Please fix the errors below before saving.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      toast({
+        title: "Security settings updated",
+        description: "Your security preferences have been saved successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Save failed",
+        description: "Failed to save security settings. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleGenerateBackupCodes = () => {
@@ -238,22 +402,71 @@ export function SecuritySection() {
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="minLength">Minimum Length</Label>
+              <Label htmlFor="minLength">Minimum Length *</Label>
               <Input 
                 id="minLength"
                 type="number"
                 min="8"
                 max="32"
                 value={securitySettings.passwordRequirements.minLength}
-                onChange={(e) => setSecuritySettings(prev => ({
-                  ...prev,
-                  passwordRequirements: {
-                    ...prev.passwordRequirements,
-                    minLength: parseInt(e.target.value)
-                  }
-                }))}
-                className="w-24"
+                onChange={(e) => handlePasswordLengthChange(parseInt(e.target.value) || 8)}
+                className={`w-24 ${validationErrors.minLength ? 'border-destructive focus-visible:ring-destructive' : ''}`}
               />
+              {validationErrors.minLength && (
+                <div className="flex items-center gap-2 text-sm text-destructive">
+                  <AlertTriangle className="h-4 w-4" />
+                  <span>{validationErrors.minLength.message}</span>
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground">
+                Minimum number of characters required for passwords
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="maxSessions">Maximum Sessions *</Label>
+              <Input 
+                id="maxSessions"
+                type="number"
+                min="1"
+                max="10"
+                value={securitySettings.sessionSettings.maxSessions}
+                onChange={(e) => handleMaxSessionsChange(parseInt(e.target.value) || 1)}
+                className={`w-24 ${validationErrors.maxSessions ? 'border-destructive focus-visible:ring-destructive' : ''}`}
+              />
+              {validationErrors.maxSessions && (
+                <div className="flex items-center gap-2 text-sm text-destructive">
+                  <AlertTriangle className="h-4 w-4" />
+                  <span>{validationErrors.maxSessions.message}</span>
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground">
+                Maximum number of concurrent sessions allowed
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="sessionTimeout">Session Timeout (hours) *</Label>
+              <Input 
+                id="sessionTimeout"
+                type="number"
+                min="1"
+                max="168"
+                value={securitySettings.sessionSettings.sessionTimeout}
+                onChange={(e) => handleSessionTimeoutChange(parseInt(e.target.value) || 1)}
+                className={`w-24 ${validationErrors.sessionTimeout ? 'border-destructive focus-visible:ring-destructive' : ''}`}
+              />
+              {validationErrors.sessionTimeout && (
+                <div className="flex items-center gap-2 text-sm text-destructive">
+                  <AlertTriangle className="h-4 w-4" />
+                  <span>{validationErrors.sessionTimeout.message}</span>
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground">
+                Automatically log out inactive users after this period
+              </p>
             </div>
           </div>
 
@@ -370,22 +583,25 @@ export function SecuritySection() {
 
             {securitySettings.dataRetention.autoDelete && (
               <div className="ml-4 space-y-2">
-                <Label htmlFor="retentionPeriod">Delete data after (months)</Label>
+                <Label htmlFor="retentionPeriod">Delete data after (months) *</Label>
                 <Input 
                   id="retentionPeriod"
                   type="number"
                   min="12"
                   max="84"
                   value={securitySettings.dataRetention.retentionPeriod}
-                  onChange={(e) => setSecuritySettings(prev => ({
-                    ...prev,
-                    dataRetention: {
-                      ...prev.dataRetention,
-                      retentionPeriod: parseInt(e.target.value)
-                    }
-                  }))}
-                  className="w-24"
+                  onChange={(e) => handleRetentionPeriodChange(parseInt(e.target.value) || 12)}
+                  className={`w-24 ${validationErrors.retentionPeriod ? 'border-destructive focus-visible:ring-destructive' : ''}`}
                 />
+                {validationErrors.retentionPeriod && (
+                  <div className="flex items-center gap-2 text-sm text-destructive">
+                    <AlertTriangle className="h-4 w-4" />
+                    <span>{validationErrors.retentionPeriod.message}</span>
+                  </div>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  Data will be permanently deleted after this period
+                </p>
               </div>
             )}
           </div>
@@ -418,8 +634,16 @@ export function SecuritySection() {
           </div>
 
           <div className="flex justify-end pt-6 border-t border-border">
-            <Button onClick={handleSave} disabled={isLoading} className="gap-2">
-              <Save className="h-4 w-4" />
+            <Button 
+              onClick={handleSave} 
+              disabled={isLoading || Object.keys(validationErrors).length > 0} 
+              className="gap-2"
+            >
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Save className="h-4 w-4" />
+              )}
               {isLoading ? "Saving..." : "Save Security Settings"}
             </Button>
           </div>

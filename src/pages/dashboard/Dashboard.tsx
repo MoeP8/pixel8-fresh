@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { PageWrapper } from "@/components/navigation/PageWrapper";
 import { 
   Calendar, 
   TrendingUp, 
@@ -112,7 +113,8 @@ export function Dashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6">
+    <PageWrapper>
+      <div className="space-y-6">
       {/* Navigation Header */}
       <div className="mb-6">
         <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-lg p-4">
@@ -395,10 +397,11 @@ export function Dashboard() {
         </div>
       </div>
 
-      {/* Widgets Section */}
-      <div className="mt-8">
-        <DashboardWidgets />
+        {/* Widgets Section */}
+        <div className="mt-8">
+          <DashboardWidgets />
+        </div>
       </div>
-    </div>
+    </PageWrapper>
   );
 }

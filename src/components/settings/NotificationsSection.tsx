@@ -16,7 +16,8 @@ import {
   Users, 
   Calendar,
   Slack,
-  Save
+  Save,
+  Loader2
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -31,9 +32,15 @@ interface NotificationSetting {
   priority: "high" | "medium" | "low";
 }
 
+interface ValidationError {
+  field: string;
+  message: string;
+}
+
 export function NotificationsSection() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<Record<string, ValidationError>>({});
   const [notifications, setNotifications] = useState<NotificationSetting[]>([
     {
       id: "failed_posts",
@@ -116,22 +123,148 @@ export function NotificationsSection() {
     slackIntegration: false
   });
 
+  // Validation functions
+  const validateQuietHours = (startTime: string, endTime: string): ValidationError | null => {
+    const start = new Date(`2000-01-01T${startTime}`);
+    const end = new Date(`2000-01-01T${endTime}`);
+    
+    if (start.getTime() === end.getTime()) {
+      return { field: 'quietHours', message: 'Start and end times cannot be the same' };
+    }
+    
+    return null;
+  };
+
+  const validateDigestFrequency = (frequency: string): ValidationError | null => {
+    const validFrequencies = ['hourly', 'daily', 'weekly'];
+    if (!validFrequencies.includes(frequency)) {
+      return { field: 'digestFrequency', message: 'Invalid digest frequency selected' };
+    }
+    return null;
+  };
+
+  const validateNotificationChannels = (): ValidationError | null => {
+    // Ensure high priority notifications have at least one channel enabled
+    const highPriorityNotifications = notifications.filter(n => n.priority === 'high');
+    const hasDisabledHighPriority = highPriorityNotifications.some(n => 
+      !n.email && !n.inApp && !n.push
+    );
+    
+    if (hasDisabledHighPriority) {
+      return { 
+        field: 'notificationChannels', 
+        message: 'High priority notifications must have at least one delivery method enabled' 
+      };
+    }
+    
+    return null;
+  };
+
+  const clearValidationError = (field: string) => {
+    setValidationErrors(prev => {
+      const newErrors = { ...prev };
+      delete newErrors[field];
+      return newErrors;
+    });
+  };
+
+  const handleQuietHoursChange = (field: 'quietStart' | 'quietEnd', value: string) => {
+    const newSettings = { ...globalSettings, [field]: value };
+    setGlobalSettings(newSettings);
+    
+    if (globalSettings.quietHours) {
+      const error = validateQuietHours(
+        field === 'quietStart' ? value : globalSettings.quietStart,
+        field === 'quietEnd' ? value : globalSettings.quietEnd
+      );
+      
+      if (error) {
+        setValidationErrors(prev => ({ ...prev, quietHours: error }));
+      } else {
+        clearValidationError('quietHours');
+      }
+    }
+  };
+
+  const handleDigestFrequencyChange = (frequency: string) => {
+    setGlobalSettings(prev => ({ ...prev, digestFrequency: frequency }));
+    
+    const error = validateDigestFrequency(frequency);
+    if (error) {
+      setValidationErrors(prev => ({ ...prev, digestFrequency: error }));
+    } else {
+      clearValidationError('digestFrequency');
+    }
+  };
+
   const updateNotification = (id: string, field: keyof NotificationSetting, value: boolean) => {
     setNotifications(notifications.map(notification => 
       notification.id === id 
         ? { ...notification, [field]: value }
         : notification
     ));
+    
+    // Clear validation error when channels are updated
+    clearValidationError('notificationChannels');
+  };
+
+  const validateAllFields = (): boolean => {
+    const errors: Record<string, ValidationError> = {};
+    
+    // Validate quiet hours if enabled
+    if (globalSettings.quietHours) {
+      const quietHoursError = validateQuietHours(globalSettings.quietStart, globalSettings.quietEnd);
+      if (quietHoursError) {
+        errors.quietHours = quietHoursError;
+      }
+    }
+    
+    // Validate digest frequency if email digest is enabled
+    if (globalSettings.emailDigest) {
+      const digestError = validateDigestFrequency(globalSettings.digestFrequency);
+      if (digestError) {
+        errors.digestFrequency = digestError;
+      }
+    }
+    
+    // Validate notification channels
+    const channelsError = validateNotificationChannels();
+    if (channelsError) {
+      errors.notificationChannels = channelsError;
+    }
+    
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   const handleSave = async () => {
+    if (!validateAllFields()) {
+      toast({
+        title: "Validation errors",
+        description: "Please fix the errors below before saving.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setIsLoading(false);
-    toast({
-      title: "Notification settings saved",
-      description: "Your notification preferences have been updated.",
-    });
+    
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      toast({
+        title: "Notification settings saved",
+        description: "Your notification preferences have been updated successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Save failed",
+        description: "Failed to save notification settings. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const getPriorityBadge = (priority: string) => {
@@ -186,14 +319,12 @@ export function NotificationsSection() {
 
           {globalSettings.emailDigest && (
             <div className="ml-4 space-y-2">
-              <Label htmlFor="digestFrequency">Digest Frequency</Label>
+              <Label htmlFor="digestFrequency">Digest Frequency *</Label>
               <Select 
                 value={globalSettings.digestFrequency}
-                onValueChange={(value) => 
-                  setGlobalSettings(prev => ({ ...prev, digestFrequency: value }))
-                }
+                onValueChange={handleDigestFrequencyChange}
               >
-                <SelectTrigger className="w-40">
+                <SelectTrigger className={`w-40 ${validationErrors.digestFrequency ? 'border-destructive focus-visible:ring-destructive' : ''}`}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -202,6 +333,12 @@ export function NotificationsSection() {
                   <SelectItem value="weekly">Weekly</SelectItem>
                 </SelectContent>
               </Select>
+              {validationErrors.digestFrequency && (
+                <div className="flex items-center gap-2 text-sm text-destructive">
+                  <AlertTriangle className="h-4 w-4" />
+                  <span>{validationErrors.digestFrequency.message}</span>
+                </div>
+              )}
             </div>
           )}
 
@@ -225,54 +362,61 @@ export function NotificationsSection() {
             </div>
 
             {globalSettings.quietHours && (
-              <div className="ml-4 flex items-center gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="quietStart">Start Time</Label>
-                  <Select 
-                    value={globalSettings.quietStart}
-                    onValueChange={(value) => 
-                      setGlobalSettings(prev => ({ ...prev, quietStart: value }))
-                    }
-                  >
-                    <SelectTrigger className="w-24">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Array.from({ length: 24 }, (_, i) => {
-                        const hour = i.toString().padStart(2, '0');
-                        return (
-                          <SelectItem key={hour} value={`${hour}:00`}>
-                            {hour}:00
-                          </SelectItem>
-                        );
-                      })}
-                    </SelectContent>
-                  </Select>
+              <div className="ml-4 space-y-3">
+                <div className="flex items-center gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="quietStart">Start Time *</Label>
+                    <Select 
+                      value={globalSettings.quietStart}
+                      onValueChange={(value) => handleQuietHoursChange('quietStart', value)}
+                    >
+                      <SelectTrigger className={`w-24 ${validationErrors.quietHours ? 'border-destructive focus-visible:ring-destructive' : ''}`}>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Array.from({ length: 24 }, (_, i) => {
+                          const hour = i.toString().padStart(2, '0');
+                          return (
+                            <SelectItem key={hour} value={`${hour}:00`}>
+                              {hour}:00
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <span className="text-muted-foreground mt-6">to</span>
+                  <div className="space-y-2">
+                    <Label htmlFor="quietEnd">End Time *</Label>
+                    <Select 
+                      value={globalSettings.quietEnd}
+                      onValueChange={(value) => handleQuietHoursChange('quietEnd', value)}
+                    >
+                      <SelectTrigger className={`w-24 ${validationErrors.quietHours ? 'border-destructive focus-visible:ring-destructive' : ''}`}>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Array.from({ length: 24 }, (_, i) => {
+                          const hour = i.toString().padStart(2, '0');
+                          return (
+                            <SelectItem key={hour} value={`${hour}:00`}>
+                              {hour}:00
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
-                <span className="text-muted-foreground">to</span>
-                <div className="space-y-2">
-                  <Label htmlFor="quietEnd">End Time</Label>
-                  <Select 
-                    value={globalSettings.quietEnd}
-                    onValueChange={(value) => 
-                      setGlobalSettings(prev => ({ ...prev, quietEnd: value }))
-                    }
-                  >
-                    <SelectTrigger className="w-24">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Array.from({ length: 24 }, (_, i) => {
-                        const hour = i.toString().padStart(2, '0');
-                        return (
-                          <SelectItem key={hour} value={`${hour}:00`}>
-                            {hour}:00
-                          </SelectItem>
-                        );
-                      })}
-                    </SelectContent>
-                  </Select>
-                </div>
+                {validationErrors.quietHours && (
+                  <div className="flex items-center gap-2 text-sm text-destructive">
+                    <AlertTriangle className="h-4 w-4" />
+                    <span>{validationErrors.quietHours.message}</span>
+                  </div>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  Push notifications will be silenced during these hours
+                </p>
               </div>
             )}
           </div>
@@ -315,6 +459,13 @@ export function NotificationsSection() {
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
+            {validationErrors.notificationChannels && (
+              <div className="flex items-center gap-2 text-sm text-destructive bg-destructive/10 p-3 rounded-lg">
+                <AlertTriangle className="h-4 w-4" />
+                <span>{validationErrors.notificationChannels.message}</span>
+              </div>
+            )}
+            
             {/* Table Header */}
             <div className="grid grid-cols-5 gap-4 pb-3 border-b border-border text-sm font-medium">
               <div>Category</div>
@@ -380,8 +531,16 @@ export function NotificationsSection() {
           </div>
 
           <div className="flex justify-end pt-6 border-t border-border">
-            <Button onClick={handleSave} disabled={isLoading} className="gap-2">
-              <Save className="h-4 w-4" />
+            <Button 
+              onClick={handleSave} 
+              disabled={isLoading || Object.keys(validationErrors).length > 0} 
+              className="gap-2"
+            >
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Save className="h-4 w-4" />
+              )}
               {isLoading ? "Saving..." : "Save Preferences"}
             </Button>
           </div>

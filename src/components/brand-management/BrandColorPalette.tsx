@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { GlassCard } from '@/components/ui/glass-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -94,12 +94,12 @@ export function BrandColorPalette({
   };
 
   return (
-    <Card>
-      <CardHeader>
+    <GlassCard className="p-6" variant="subtle" hover>
+      <div className="mb-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Palette className="h-5 w-5" />
-            <CardTitle>Brand Colors</CardTitle>
+            <h3 className="text-lg font-semibold text-foreground">Brand Colors</h3>
           </div>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
@@ -193,9 +193,9 @@ export function BrandColorPalette({
             </DialogContent>
           </Dialog>
         </div>
-      </CardHeader>
+      </div>
       
-      <CardContent>
+      <div>
         {colors.length === 0 ? (
           <div className="text-center py-8">
             <Palette className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
@@ -207,7 +207,7 @@ export function BrandColorPalette({
             {colors.map((color) => {
               const rgb = hexToRgb(color.hex_code);
               return (
-                <div key={color.id} className="group border rounded-lg p-4 hover:shadow-md transition-shadow">
+                <GlassCard key={color.id} className="group p-4" variant="glass" size="sm" hover>
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-3">
                       <div
@@ -262,12 +262,12 @@ export function BrandColorPalette({
                   {color.usage_notes && (
                     <p className="text-sm text-muted-foreground">{color.usage_notes}</p>
                   )}
-                </div>
+                </GlassCard>
               );
             })}
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </GlassCard>
   );
 }

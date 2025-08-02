@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { GlassCard } from '@/components/ui/glass-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -139,12 +139,12 @@ export function BrandAssetLibrary({ assets, onAddAsset, clientId }: BrandAssetLi
   };
 
   return (
-    <Card>
-      <CardHeader>
+    <GlassCard className="p-6" variant="subtle" hover>
+      <div className="mb-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <FileImage className="h-5 w-5" />
-            <CardTitle>Brand Asset Library</CardTitle>
+            <h3 className="text-lg font-semibold text-foreground">Brand Asset Library</h3>
           </div>
           <div className="flex items-center gap-2">
             <Select value={filter} onValueChange={(value: BrandAssetType | 'all') => setFilter(value)}>
@@ -293,9 +293,9 @@ export function BrandAssetLibrary({ assets, onAddAsset, clientId }: BrandAssetLi
             </Dialog>
           </div>
         </div>
-      </CardHeader>
+      </div>
       
-      <CardContent>
+      <div>
         {filteredAssets.length === 0 ? (
           <div className="text-center py-8">
             <FileImage className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
@@ -309,7 +309,7 @@ export function BrandAssetLibrary({ assets, onAddAsset, clientId }: BrandAssetLi
               const IconComponent = config.icon;
               
               return (
-                <div key={asset.id} className="group border rounded-lg overflow-hidden hover:shadow-md transition-shadow">
+                <GlassCard key={asset.id} className="group overflow-hidden" variant="glass" size="sm" hover>
                   <div className="aspect-video bg-muted flex items-center justify-center relative">
                     {asset.file_type?.startsWith('image/') ? (
                       <img 

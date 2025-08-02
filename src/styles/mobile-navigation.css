@@ -1,0 +1,162 @@
+/* Mobile Navigation Enhancements */
+
+/* Mobile-first responsive design */
+@media (max-width: 768px) {
+  /* Ensure body has proper padding for fixed navigation */
+  body {
+    padding-bottom: 4rem; /* Space for bottom navigation */
+  }
+
+  /* Optimize touch targets for mobile */
+  .mobile-nav-item {
+    min-height: 44px; /* iOS recommended touch target size */
+    min-width: 44px;
+  }
+
+  /* Improve text legibility on mobile */
+  .mobile-nav-text {
+    font-size: 10px;
+    line-height: 1.2;
+    font-weight: 500;
+  }
+
+  /* Enhanced backdrop blur for mobile */
+  .mobile-nav-backdrop {
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+
+  /* Smooth transitions for mobile interactions */
+  .mobile-nav-transition {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: center;
+  }
+
+  /* Active state animations */
+  .mobile-nav-active {
+    transform: scale(1.05);
+    background-color: rgba(147, 51, 234, 0.2);
+  }
+
+  /* Hamburger menu animation */
+  .hamburger-line {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: center;
+  }
+
+  .hamburger-open .hamburger-line:first-child {
+    transform: rotate(45deg) translate(5px, 5px);
+  }
+
+  .hamburger-open .hamburger-line:nth-child(2) {
+    opacity: 0;
+  }
+
+  .hamburger-open .hamburger-line:last-child {
+    transform: rotate(-45deg) translate(7px, -6px);
+  }
+}
+
+/* Tablet optimizations */
+@media (min-width: 768px) and (max-width: 1024px) {
+  /* Hide bottom navigation on tablet */
+  .bottom-navigation {
+    display: none;
+  }
+
+  /* Show condensed top navigation */
+  .top-navigation {
+    padding: 0.75rem 1rem;
+  }
+
+  .nav-logo {
+    font-size: 1.25rem;
+  }
+}
+
+/* Desktop optimizations */
+@media (min-width: 1024px) {
+  /* Full navigation visible */
+  .bottom-navigation {
+    display: none;
+  }
+
+  .desktop-nav-items {
+    display: flex;
+  }
+
+  /* Enhanced hover effects for desktop */
+  .nav-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(147, 51, 234, 0.3);
+  }
+}
+
+/* Accessibility enhancements */
+@media (prefers-reduced-motion: reduce) {
+  .mobile-nav-transition,
+  .hamburger-line,
+  .nav-item {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* Dark mode optimizations */
+@media (prefers-color-scheme: dark) {
+  .mobile-nav-backdrop {
+    background-color: rgba(15, 23, 42, 0.9);
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .nav-item {
+    border: 1px solid;
+  }
+
+  .nav-item.active {
+    background-color: #000;
+    color: #fff;
+  }
+}
+
+/* Safe area handling for devices with notches */
+@supports (padding: max(0px)) {
+  .top-navigation {
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
+
+  .bottom-navigation {
+    padding-left: max(0px, env(safe-area-inset-left));
+    padding-right: max(0px, env(safe-area-inset-right));
+    padding-bottom: max(0px, env(safe-area-inset-bottom));
+  }
+}
+
+/* Focus management for keyboard navigation */
+.nav-item:focus-visible {
+  outline: 2px solid #8b5cf6;
+  outline-offset: 2px;
+  border-radius: 0.5rem;
+}
+
+/* Loading states */
+.nav-skeleton {
+  background: linear-gradient(90deg, 
+    rgba(255, 255, 255, 0.1) 0%, 
+    rgba(255, 255, 255, 0.2) 50%, 
+    rgba(255, 255, 255, 0.1) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
