@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { DashboardLayout } from "@/components/DashboardLayout";
+import { GlassCard } from "@/components/ui/glass-card";
+import { GlassButton } from "@/components/ui/glass-button";
 import { SettingsNavigation } from "@/components/settings/SettingsNavigation";
 import { ProfileSection } from "@/components/settings/ProfileSection";
 import { BrandDefaultsSection } from "@/components/settings/BrandDefaultsSection";
@@ -11,6 +12,7 @@ import { AutomationRulesSection } from "@/components/settings/AutomationRulesSec
 import { ApprovalWorkflowsSection } from "@/components/settings/ApprovalWorkflowsSection";
 import { SecuritySection } from "@/components/settings/SecuritySection";
 import { NotionIntegrationSection } from "@/components/settings/NotionIntegrationSection";
+import { Settings as SettingsIcon, Save, Download, Upload, Shield, Users, Bell, Zap } from "lucide-react";
 
 export type SettingsSection = 
   | "profile"
@@ -55,24 +57,93 @@ const Settings = () => {
   };
 
   return (
-    <DashboardLayout title="Settings" showSearch={false}>
-      <div className="flex h-[calc(100vh-4rem)] bg-background">
-        {/* Settings Navigation - Fixed Left Column */}
-        <div className="w-80 border-r border-border bg-card">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-white mb-2">Settings</h1>
+          <p className="text-slate-300">
+            Configure your workspace, integrations, and preferences
+          </p>
+        </div>
+        
+        <div className="flex gap-3">
+          <GlassButton variant="outline" size="sm">
+            <Upload className="w-4 h-4 mr-2" />
+            Import Config
+          </GlassButton>
+          <GlassButton variant="outline" size="sm">
+            <Download className="w-4 h-4 mr-2" />
+            Export Settings
+          </GlassButton>
+          <GlassButton variant="primary">
+            <Save className="w-4 h-4 mr-2" />
+            Save All
+          </GlassButton>
+        </div>
+      </div>
+
+      {/* Stats Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <GlassCard className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-slate-300 text-sm">Connected Accounts</p>
+              <p className="text-white text-2xl font-bold">6</p>
+            </div>
+            <Users className="w-8 h-8 text-blue-400" />
+          </div>
+        </GlassCard>
+        
+        <GlassCard className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-slate-300 text-sm">Active Integrations</p>
+              <p className="text-white text-2xl font-bold">4</p>
+            </div>
+            <Zap className="w-8 h-8 text-green-400" />
+          </div>
+        </GlassCard>
+        
+        <GlassCard className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-slate-300 text-sm">Notifications</p>
+              <p className="text-white text-2xl font-bold">12</p>
+            </div>
+            <Bell className="w-8 h-8 text-purple-400" />
+          </div>
+        </GlassCard>
+        
+        <GlassCard className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-slate-300 text-sm">Security Score</p>
+              <p className="text-white text-2xl font-bold">98%</p>
+            </div>
+            <Shield className="w-8 h-8 text-orange-400" />
+          </div>
+        </GlassCard>
+      </div>
+
+      {/* Settings Content */}
+      <div className="flex gap-6 h-[calc(100vh-20rem)]">
+        {/* Settings Navigation - Left Column */}
+        <GlassCard className="w-80 p-6">
           <SettingsNavigation 
             activeSection={activeSection} 
             onSectionChange={setActiveSection}
           />
-        </div>
+        </GlassCard>
 
-        {/* Settings Content - Scrollable Right Column */}
-        <div className="flex-1 overflow-y-auto">
-          <div className="p-8 max-w-4xl">
+        {/* Settings Content - Right Column */}
+        <GlassCard className="flex-1 p-8 overflow-y-auto">
+          <div className="max-w-4xl">
             {renderSection()}
           </div>
-        </div>
+        </GlassCard>
       </div>
-    </DashboardLayout>
+    </div>
   );
 };
 
