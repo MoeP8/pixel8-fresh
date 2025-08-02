@@ -70,6 +70,13 @@ const App = () => (
         <Route path="/content-studio" element={<ContentStudio />} />
         <Route path="/publisher" element={<PublisherPage />} />
         <Route path="/analytics" element={<Analytics />} />
+        <Route path="/campaigns" element={<Campaigns />} />
+        <Route path="/assets" element={<AssetsPage />} />
+        <Route path="/scheduler" element={<Scheduler />} />
+        <Route path="/clients" element={<Clients />} />
+        <Route path="/approvals" element={<Approvals />} />
+        <Route path="/automation" element={<Automation />} />
+        <Route path="/settings" element={<Settings />} />
         <Route path="/dashboard" element={<DashboardLayout />}>
           <Route index element={<Dashboard />} />
           <Route path="clients" element={<Clients />} />
