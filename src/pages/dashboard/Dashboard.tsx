@@ -16,7 +16,15 @@ import {
   AlertCircle,
   Play,
   Pause,
-  Settings
+  Settings,
+  Home,
+  BarChart3,
+  Target,
+  Bot,
+  FolderOpen,
+  UserCheck,
+  Building2,
+  Menu
 } from "lucide-react";
 import { DashboardWidgets } from "./DashboardWidgets";
 import { DashboardMetrics } from "./DashboardMetrics";
@@ -92,8 +100,46 @@ export function Dashboard() {
     return today === postDate;
   }).slice(0, 5);
 
+  const navigationItems = [
+    { name: "Dashboard", href: "/dashboard", icon: Home },
+    { name: "Clients", href: "/clients", icon: Building2 },
+    { name: "Analytics", href: "/analytics", icon: BarChart3 },
+    { name: "Campaigns", href: "/campaigns", icon: Target },
+    { name: "Automation", href: "/automation", icon: Bot },
+    { name: "Scheduler", href: "/scheduler", icon: Calendar },
+    { name: "Assets", href: "/assets", icon: FolderOpen },
+    { name: "Approvals", href: "/approvals", icon: UserCheck },
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6">
+      {/* Navigation Header */}
+      <div className="mb-6">
+        <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-lg p-4">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-white font-semibold">Pixel8 Social Hub</h2>
+            <Button variant="outline" size="sm" className="bg-white/10 border-white/20 hover:bg-white/20">
+              <Menu className="w-4 h-4" />
+            </Button>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {navigationItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <a
+                  key={item.name}
+                  href={item.href}
+                  className="flex items-center gap-2 px-3 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-slate-300 hover:text-white transition-all text-sm"
+                >
+                  <Icon className="w-4 h-4" />
+                  {item.name}
+                </a>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center justify-between">
