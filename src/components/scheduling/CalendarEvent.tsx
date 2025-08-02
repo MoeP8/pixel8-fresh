@@ -1,6 +1,6 @@
 import React from "react";
 import { Badge } from "@/components/ui/badge";
-import { ScheduledPost } from "@/hooks/useScheduling";
+import type { ScheduledPost } from "@/hooks/useScheduling";
 
 interface CalendarEventProps {
   event: {

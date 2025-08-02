@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { ContentApproval } from "@/hooks/useApprovals";
+import type { ContentApproval } from "@/hooks/useApprovals";
 import { Check, X, MessageCircle, Clock } from "lucide-react";
 
 interface ApprovalActionsProps {

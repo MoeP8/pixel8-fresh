@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useScheduling, ScheduledPost } from '@/hooks/useScheduling';
+import { useScheduling, type ScheduledPost } from '@/hooks/useScheduling';
 import { broadcastActivity } from '@/components/realtime/RealtimeProvider';
 import { supabase } from '@/integrations/supabase/client';
 

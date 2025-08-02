@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { notionService, NotionClient } from '@/services/NotionService';
+import { notionService, type NotionClient } from '@/services/NotionService';
 
 export interface Client extends NotionClient {}
 

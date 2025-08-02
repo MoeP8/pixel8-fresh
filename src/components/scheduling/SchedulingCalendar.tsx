@@ -1,12 +1,12 @@
 import { useState, useMemo } from "react";
-import { Calendar, dateFnsLocalizer, Views, View } from "react-big-calendar";
+import { Calendar, dateFnsLocalizer, Views, type View } from "react-big-calendar";
 import { format, parse, startOfWeek, getDay } from "date-fns";
 import { enUS } from "date-fns/locale";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useScheduling, ScheduledPost } from "@/hooks/useScheduling";
+import { useScheduling, type ScheduledPost } from "@/hooks/useScheduling";
 import { SchedulePostModal } from "./SchedulePostModal";
 import { BulkScheduleModal } from "./BulkScheduleModal";
 import { CalendarEvent } from "./CalendarEvent";

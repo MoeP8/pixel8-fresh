@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ContentApproval } from "@/hooks/useApprovals";
+import type { ContentApproval } from "@/hooks/useApprovals";
 import { ApprovalActions } from "./ApprovalActions";
 import { BrandComplianceIndicator } from "./BrandComplianceIndicator";
 import { format } from "date-fns";

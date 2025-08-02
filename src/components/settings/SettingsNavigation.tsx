@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { SettingsSection } from "@/pages/Settings";
+import type { SettingsSection } from "@/pages/Settings";
 import { 
   User, 
   Palette, 

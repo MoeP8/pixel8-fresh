@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Upload, X, Palette, Download } from "lucide-react";
-import { BrandColor } from "@/types/brand-management";
+import type { BrandColor } from "@/types/brand-management";
 
 interface MediaUploaderProps {
   onUpload: (files: File[]) => void;

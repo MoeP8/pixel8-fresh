@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, Edit, TrendingUp, Target, Calendar } from "lucide-react";
-import { CampaignAnalytics, useAnalytics } from "@/hooks/useAnalytics";
+import { useAnalytics, type CampaignAnalytics } from "@/hooks/useAnalytics";
 import { format } from 'date-fns';
 
 interface CampaignManagementProps {

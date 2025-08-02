@@ -3,8 +3,8 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
-import { ContentPillarPerformance } from "@/hooks/useAnalytics";
-import { ContentPillar } from "@/types/brand-management";
+import type { ContentPillarPerformance } from "@/hooks/useAnalytics";
+import type { ContentPillar } from "@/types/brand-management";
 
 interface ContentPillarAnalyticsProps {
   pillarPerformance: ContentPillarPerformance[];

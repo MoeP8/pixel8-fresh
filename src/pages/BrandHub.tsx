@@ -25,8 +25,8 @@ import { BrandAssetLibrary } from '@/components/brand-management/BrandAssetLibra
 import { VoiceProfileEditor } from '@/components/brand-management/VoiceProfileEditor';
 import { useBrandManagement } from '@/hooks/useBrandManagement';
 import { supabase } from '@/integrations/supabase/client';
-import { Client } from '@/types/social-accounts';
-import { VoiceTrait } from '@/types/brand-management';
+import type { Client } from '@/types/social-accounts';
+import type { VoiceTrait } from '@/types/brand-management';
 
 const BrandHub = () => {
   const [searchParams, setSearchParams] = useSearchParams();

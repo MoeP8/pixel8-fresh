@@ -3,7 +3,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TrendingUp, TrendingDown, Target, MessageCircle } from "lucide-react";
-import { BrandPerformanceMetric } from "@/hooks/useAnalytics";
+import type { BrandPerformanceMetric } from "@/hooks/useAnalytics";
 
 interface BrandPerformanceOverviewProps {
   metrics: BrandPerformanceMetric[];

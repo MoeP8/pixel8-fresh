@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { SocialAccount, PlatformGuidelines } from '@/types/social-accounts';
+import type { SocialAccount, PlatformGuidelines } from '@/types/social-accounts';
 import { useToast } from '@/hooks/use-toast';
 import { useMockData } from '@/hooks/useMockData';
 

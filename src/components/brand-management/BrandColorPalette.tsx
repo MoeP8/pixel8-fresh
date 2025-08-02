@@ -8,7 +8,7 @@ import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Copy, Edit2, Trash2, Palette } from 'lucide-react';
-import { BrandColor } from '@/types/brand-management';
+import type { BrandColor } from '@/types/brand-management';
 import { useToast } from '@/hooks/use-toast';
 
 interface BrandColorPaletteProps {

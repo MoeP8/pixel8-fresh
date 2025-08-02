@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { socialMediaService, PublishPostRequest } from '@/services/SocialMediaService';
+import { socialMediaService, type PublishPostRequest } from '@/services/SocialMediaService';
 import { slackService } from '@/services/integrations/SlackService';
 import { supabase } from '@/integrations/supabase/client';
 

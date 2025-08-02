@@ -3,7 +3,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { useState } from 'react';
-import { CampaignAnalytics } from "@/hooks/useAnalytics";
+import type { CampaignAnalytics } from "@/hooks/useAnalytics";
 
 interface CampaignPerformanceChartProps {
   campaigns: CampaignAnalytics[];

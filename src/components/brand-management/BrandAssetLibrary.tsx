@@ -21,7 +21,7 @@ import {
   VideoIcon,
   PaletteIcon
 } from 'lucide-react';
-import { BrandAsset, BrandAssetType } from '@/types/brand-management';
+import type { BrandAsset, BrandAssetType } from '@/types/brand-management';
 import { useToast } from '@/hooks/use-toast';
 
 interface BrandAssetLibraryProps {

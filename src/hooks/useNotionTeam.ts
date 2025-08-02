@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { notionService, NotionTeamMember } from '@/services/NotionService';
+import { notionService, type NotionTeamMember } from '@/services/NotionService';
 
 export const useNotionTeam = () => {
   const [teamMembers, setTeamMembers] = useState<NotionTeamMember[]>([]);

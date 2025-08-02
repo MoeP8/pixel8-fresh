@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ContentComposer } from "@/components/publisher/ContentComposer";
 import { AccountSelector } from "@/components/publishing/AccountSelector";
-import { useMultiAccountPublishing, BulkPublishRequest } from "@/hooks/useMultiAccountPublishing";
+import { useMultiAccountPublishing, type BulkPublishRequest } from "@/hooks/useMultiAccountPublishing";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";

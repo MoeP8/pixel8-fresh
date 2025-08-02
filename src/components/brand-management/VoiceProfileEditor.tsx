@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
 import { Mic, Save, RotateCcw } from 'lucide-react';
-import { BrandVoiceProfile, VoiceTrait } from '@/types/brand-management';
+import type { BrandVoiceProfile, VoiceTrait } from '@/types/brand-management';
 import { useToast } from '@/hooks/use-toast';
 
 interface VoiceProfileEditorProps {

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useMockData } from "@/hooks/useMockData";
-import { socialMediaService, PublishPostRequest } from "@/services/SocialMediaService";
+import { socialMediaService, type PublishPostRequest } from "@/services/SocialMediaService";
 import { errorHandlingService, ErrorCategory, ErrorSeverity } from "@/services/ErrorHandlingService";
 
 export interface ScheduledPost {
