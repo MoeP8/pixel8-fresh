@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { ContentPillarPerformance } from "@/hooks/useAnalytics";
 import { ContentPillar } from "@/types/brand-management";
@@ -25,18 +26,71 @@ export function ContentPillarAnalytics({ pillarPerformance, contentPillars, load
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Content Distribution</CardTitle>
+            <Skeleton className="h-6 w-40 mb-2" />
+            <Skeleton className="h-4 w-64" />
           </CardHeader>
           <CardContent>
-            <div className="h-[300px] bg-muted animate-pulse rounded" />
+            <div className="space-y-4">
+              {/* Pillar distribution skeleton */}
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="w-3 h-3 rounded-full" />
+                      <Skeleton className="h-4 w-24" />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="h-5 w-16" />
+                      <Skeleton className="h-4 w-12" />
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Skeleton className="h-2 flex-1" />
+                    <Skeleton className="h-2 flex-1" />
+                  </div>
+                </div>
+              ))}
+              {/* Pie chart skeleton */}
+              <div className="mt-6 h-[200px] flex items-center justify-center">
+                <Skeleton className="w-32 h-32 rounded-full" />
+              </div>
+            </div>
           </CardContent>
         </Card>
+        
         <Card>
           <CardHeader>
-            <CardTitle>Pillar Performance</CardTitle>
+            <Skeleton className="h-6 w-36 mb-2" />
+            <Skeleton className="h-4 w-56" />
           </CardHeader>
           <CardContent>
-            <div className="h-[300px] bg-muted animate-pulse rounded" />
+            <div className="space-y-4 mb-6">
+              {/* Performance items skeleton */}
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="flex items-center justify-between p-3 rounded-lg border">
+                  <div>
+                    <Skeleton className="h-4 w-20 mb-1" />
+                    <Skeleton className="h-3 w-16" />
+                  </div>
+                  <div className="text-right">
+                    <Skeleton className="h-5 w-10 mb-1" />
+                    <Skeleton className="h-3 w-12" />
+                  </div>
+                </div>
+              ))}
+            </div>
+            {/* Bar chart skeleton */}
+            <div className="h-[200px] flex items-end justify-between px-4">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="flex flex-col items-center space-y-2">
+                  <Skeleton 
+                    className="w-8 bg-primary/20" 
+                    style={{ height: `${Math.random() * 120 + 40}px` }}
+                  />
+                  <Skeleton className="h-3 w-12" />
+                </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
       </div>
