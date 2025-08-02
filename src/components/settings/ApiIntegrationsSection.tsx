@@ -14,7 +14,9 @@ import {
   TestTube,
   Key,
   ExternalLink,
-  Zap
+  Zap,
+  AlertTriangle,
+  Loader2
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -26,6 +28,19 @@ interface ApiIntegration {
   hasKey: boolean;
   testable: boolean;
   docsUrl?: string;
+  keyFormat?: RegExp;
+  keyHint?: string;
+}
+
+interface ValidationError {
+  field: string;
+  message: string;
+}
+
+interface TestResult {
+  success: boolean;
+  message: string;
+  details?: string;
 }
 
 export function ApiIntegrationsSection() {
@@ -37,6 +52,10 @@ export function ApiIntegrationsSection() {
     meta_marketing: "EAABwz...",
     supabase: "sbp_...",
   });
+  const [validationErrors, setValidationErrors] = useState<Record<string, ValidationError>>({});
+  const [testResults, setTestResults] = useState<Record<string, TestResult>>({});
+  const [testingKeys, setTestingKeys] = useState<Record<string, boolean>>({});
+  const [savingKeys, setSavingKeys] = useState<Record<string, boolean>>({});
 
   const integrations: ApiIntegration[] = [
     {
@@ -46,7 +65,9 @@ export function ApiIntegrationsSection() {
       status: "connected",
       hasKey: true,
       testable: true,
-      docsUrl: "https://platform.openai.com/docs"
+      docsUrl: "https://platform.openai.com/docs",
+      keyFormat: /^sk-proj-[a-zA-Z0-9]{64}T3BlbkFJ[a-zA-Z0-9]{20}$/,
+      keyHint: "Must start with 'sk-proj-' and be 104 characters long"
     },
     {
       id: "google_ads",
@@ -55,7 +76,9 @@ export function ApiIntegrationsSection() {
       status: "disconnected", 
       hasKey: false,
       testable: true,
-      docsUrl: "https://developers.google.com/google-ads/api"
+      docsUrl: "https://developers.google.com/google-ads/api",
+      keyFormat: /^[A-Za-z0-9_-]{20,100}$/,
+      keyHint: "OAuth 2.0 client credentials (20-100 characters)"
     },
     {
       id: "meta_marketing",
@@ -64,7 +87,9 @@ export function ApiIntegrationsSection() {
       status: "connected",
       hasKey: true,
       testable: true,
-      docsUrl: "https://developers.facebook.com/docs/marketing-apis"
+      docsUrl: "https://developers.facebook.com/docs/marketing-apis",
+      keyFormat: /^EAA[A-Za-z0-9]{20,}$/,
+      keyHint: "Must start with 'EAA' followed by alphanumeric characters"
     },
     {
       id: "supabase",
@@ -73,9 +98,56 @@ export function ApiIntegrationsSection() {
       status: "connected",
       hasKey: true,
       testable: true,
-      docsUrl: "https://supabase.com/docs"
+      docsUrl: "https://supabase.com/docs",
+      keyFormat: /^sbp_[a-f0-9]{32}$/,
+      keyHint: "Must start with 'sbp_' followed by 32 hex characters"
     }
   ];
+
+  // Validation functions
+  const validateApiKey = (integrationId: string, key: string): ValidationError | null => {
+    const integration = integrations.find(i => i.id === integrationId);
+    if (!integration) return null;
+
+    if (!key || key.trim() === "") {
+      return {
+        field: integrationId,
+        message: "API key is required"
+      };
+    }
+
+    if (key.length < 8) {
+      return {
+        field: integrationId,
+        message: "API key is too short (minimum 8 characters)"
+      };
+    }
+
+    if (integration.keyFormat && !integration.keyFormat.test(key)) {
+      return {
+        field: integrationId,
+        message: integration.keyHint || "Invalid API key format"
+      };
+    }
+
+    return null;
+  };
+
+  const clearValidationError = (integrationId: string) => {
+    setValidationErrors(prev => {
+      const newErrors = { ...prev };
+      delete newErrors[integrationId];
+      return newErrors;
+    });
+  };
+
+  const clearTestResult = (integrationId: string) => {
+    setTestResults(prev => {
+      const newResults = { ...prev };
+      delete newResults[integrationId];
+      return newResults;
+    });
+  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -109,6 +181,22 @@ export function ApiIntegrationsSection() {
     setShowKeys(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
+  const handleKeyChange = (integrationId: string, value: string) => {
+    setApiKeys(prev => ({ ...prev, [integrationId]: value }));
+    
+    // Clear validation error and test result when user types
+    clearValidationError(integrationId);
+    clearTestResult(integrationId);
+    
+    // Validate on change if not empty
+    if (value.trim()) {
+      const error = validateApiKey(integrationId, value);
+      if (error) {
+        setValidationErrors(prev => ({ ...prev, [integrationId]: error }));
+      }
+    }
+  };
+
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     toast({
@@ -117,19 +205,96 @@ export function ApiIntegrationsSection() {
     });
   };
 
-  const testConnection = (id: string) => {
-    toast({
-      title: "Testing connection",
-      description: "Verifying API key and permissions...",
-    });
+  const testConnection = async (id: string) => {
+    const key = apiKeys[id];
+    const error = validateApiKey(id, key);
+    
+    if (error) {
+      setValidationErrors(prev => ({ ...prev, [id]: error }));
+      return;
+    }
+
+    setTestingKeys(prev => ({ ...prev, [id]: true }));
+    clearValidationError(id);
+    
+    try {
+      // Simulate API test with delay
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Mock validation logic for demo
+      const isValid = Math.random() > 0.3; // 70% success rate for demo
+      
+      const result: TestResult = {
+        success: isValid,
+        message: isValid 
+          ? "Connection successful! API key is valid and has proper permissions."
+          : "Connection failed. Please check your API key and permissions.",
+        details: isValid 
+          ? "All required scopes are available" 
+          : "Invalid credentials or insufficient permissions"
+      };
+      
+      setTestResults(prev => ({ ...prev, [id]: result }));
+      
+      toast({
+        title: result.success ? "Connection successful" : "Connection failed",
+        description: result.message,
+        variant: result.success ? "default" : "destructive",
+      });
+    } catch (error) {
+      const result: TestResult = {
+        success: false,
+        message: "Network error occurred during testing",
+        details: "Please check your internet connection and try again"
+      };
+      
+      setTestResults(prev => ({ ...prev, [id]: result }));
+      
+      toast({
+        title: "Test failed",
+        description: result.message,
+        variant: "destructive",
+      });
+    } finally {
+      setTestingKeys(prev => ({ ...prev, [id]: false }));
+    }
   };
 
-  const handleSaveKey = (id: string, value: string) => {
-    setApiKeys(prev => ({ ...prev, [id]: value }));
-    toast({
-      title: "API key saved",
-      description: "Your API key has been securely stored.",
-    });
+  const handleSaveKey = async (id: string, value: string) => {
+    const error = validateApiKey(id, value);
+    
+    if (error) {
+      setValidationErrors(prev => ({ ...prev, [id]: error }));
+      toast({
+        title: "Validation error",
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSavingKeys(prev => ({ ...prev, [id]: true }));
+    clearValidationError(id);
+    
+    try {
+      // Simulate save with delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      setApiKeys(prev => ({ ...prev, [id]: value }));
+      
+      toast({
+        title: "API key saved",
+        description: "Your API key has been securely stored.",
+      });
+    } catch (error) {
+      toast({
+        title: "Save failed",
+        description: "Failed to save API key. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSavingKeys(prev => ({ ...prev, [id]: false }));
+    }
   };
 
   return (
@@ -204,9 +369,9 @@ export function ApiIntegrationsSection() {
                       id={`${integration.id}-key`}
                       type={showKeys[integration.id] ? "text" : "password"}
                       value={apiKeys[integration.id] || ""}
-                      onChange={(e) => setApiKeys(prev => ({ ...prev, [integration.id]: e.target.value }))}
+                      onChange={(e) => handleKeyChange(integration.id, e.target.value)}
                       placeholder={`Enter your ${integration.name} API key`}
-                      className="pr-10"
+                      className={`pr-10 ${validationErrors[integration.id] ? 'border-destructive focus-visible:ring-destructive' : ''}`}
                     />
                     <Button
                       type="button"
@@ -232,6 +397,48 @@ export function ApiIntegrationsSection() {
                     </Button>
                   )}
                 </div>
+                
+                {/* Validation Error */}
+                {validationErrors[integration.id] && (
+                  <div className="flex items-center gap-2 text-sm text-destructive">
+                    <AlertTriangle className="h-4 w-4" />
+                    <span>{validationErrors[integration.id].message}</span>
+                  </div>
+                )}
+                
+                {/* Format Hint */}
+                {!validationErrors[integration.id] && integration.keyHint && (
+                  <p className="text-xs text-muted-foreground">
+                    {integration.keyHint}
+                  </p>
+                )}
+                
+                {/* Test Result */}
+                {testResults[integration.id] && (
+                  <div className={`p-3 rounded-lg border ${
+                    testResults[integration.id].success 
+                      ? 'border-success/20 bg-success/5' 
+                      : 'border-destructive/20 bg-destructive/5'
+                  }`}>
+                    <div className="flex items-center gap-2">
+                      {testResults[integration.id].success ? (
+                        <CheckCircle2 className="h-4 w-4 text-success" />
+                      ) : (
+                        <XCircle className="h-4 w-4 text-destructive" />
+                      )}
+                      <p className={`text-sm font-medium ${
+                        testResults[integration.id].success ? 'text-success' : 'text-destructive'
+                      }`}>
+                        {testResults[integration.id].message}
+                      </p>
+                    </div>
+                    {testResults[integration.id].details && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {testResults[integration.id].details}
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
 
               <Separator />
@@ -240,20 +447,27 @@ export function ApiIntegrationsSection() {
               <div className="flex gap-2">
                 <Button 
                   onClick={() => handleSaveKey(integration.id, apiKeys[integration.id] || "")}
-                  disabled={!apiKeys[integration.id]}
+                  disabled={!apiKeys[integration.id] || !!validationErrors[integration.id] || savingKeys[integration.id]}
                   size="sm"
+                  className="gap-2"
                 >
-                  Save Key
+                  {savingKeys[integration.id] && <Loader2 className="h-4 w-4 animate-spin" />}
+                  {savingKeys[integration.id] ? 'Saving...' : 'Save Key'}
                 </Button>
-                {integration.testable && apiKeys[integration.id] && (
+                {integration.testable && (
                   <Button 
                     variant="outline" 
                     size="sm" 
                     onClick={() => testConnection(integration.id)}
+                    disabled={!apiKeys[integration.id] || !!validationErrors[integration.id] || testingKeys[integration.id]}
                     className="gap-2"
                   >
-                    <TestTube className="h-4 w-4" />
-                    Test Connection
+                    {testingKeys[integration.id] ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <TestTube className="h-4 w-4" />
+                    )}
+                    {testingKeys[integration.id] ? 'Testing...' : 'Test Connection'}
                   </Button>
                 )}
               </div>
