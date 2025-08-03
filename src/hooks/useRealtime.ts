@@ -30,21 +30,25 @@ export function useRealtime() {
 
   // Track current user's presence
   const updatePresence = useCallback(async (status: 'online' | 'away' | 'busy', currentPage?: string) => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
 
-    const presence = {
-      user_id: user.id,
-      username: user.user_metadata?.full_name || user.email || 'Anonymous',
-      avatar_url: user.user_metadata?.avatar_url,
-      online_at: new Date().toISOString(),
-      status,
-      current_page: currentPage
-    };
+      const presence = {
+        user_id: user.id,
+        username: user.user_metadata?.full_name || user.email || 'Anonymous',
+        avatar_url: user.user_metadata?.avatar_url,
+        online_at: new Date().toISOString(),
+        status,
+        current_page: currentPage
+      };
 
-    // Update presence in realtime channel
-    const channel = supabase.channel('pixel8-presence');
-    await channel.track(presence);
+      // Update presence in realtime channel
+      const channel = supabase.channel('pixel8-presence');
+      await channel.track(presence);
+    } catch (error) {
+      console.error('useRealtime: Failed to update presence:', error);
+    }
   }, []);
 
   // Initialize realtime connections
@@ -54,8 +58,12 @@ export function useRealtime() {
     let postsChannel: RealtimeChannel;
 
     const initializeRealtime = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          console.log('useRealtime: No authenticated user, skipping realtime initialization');
+          return;
+        }
 
       // 1. Presence Channel - Track who's online
       presenceChannel = supabase
@@ -148,6 +156,10 @@ export function useRealtime() {
           }
         )
         .subscribe();
+      } catch (error) {
+        console.error('useRealtime: Failed to initialize realtime connections:', error);
+        setIsConnected(false);
+      }
     };
 
     initializeRealtime();
@@ -179,24 +191,28 @@ export function useRealtime() {
 
   // Broadcast activity to team
   const broadcastActivity = useCallback(async (action: string, details: any) => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
 
-    const activity: RealtimeActivity = {
-      id: crypto.randomUUID(),
-      user_id: user.id,
-      username: user.user_metadata?.full_name || user.email || 'Anonymous',
-      action,
-      details,
-      created_at: new Date().toISOString()
-    };
+      const activity: RealtimeActivity = {
+        id: crypto.randomUUID(),
+        user_id: user.id,
+        username: user.user_metadata?.full_name || user.email || 'Anonymous',
+        action,
+        details,
+        created_at: new Date().toISOString()
+      };
 
-    const channel = supabase.channel('pixel8-activity');
-    await channel.send({
-      type: 'broadcast',
-      event: 'activity',
-      payload: activity
-    });
+      const channel = supabase.channel('pixel8-activity');
+      await channel.send({
+        type: 'broadcast',
+        event: 'activity',
+        payload: activity
+      });
+    } catch (error) {
+      console.error('useRealtime: Failed to broadcast activity:', error);
+    }
   }, []);
 
   // Get online team members
