@@ -4,12 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AdCampaign, AutomationRule } from "@/hooks/useAdsManagement";
-import { Plus, Zap, Play, Pause, Settings, AlertTriangle } from "lucide-react";
+import { Plus, Zap, Play, Pause, Settings } from "lucide-react";
 import { format } from 'date-fns';
 
 interface AutomationRulesProps {
