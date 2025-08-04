@@ -149,7 +149,7 @@ const BrandHub = () => {
   const selectedClientData = clients.find(c => c.id === selectedClient);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-tour="brand-overview">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

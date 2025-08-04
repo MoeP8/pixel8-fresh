@@ -376,12 +376,12 @@ export function BrandAssetLibrary({ assets, onAddAsset, clientId }: BrandAssetLi
                       {formatFileSize(asset.file_size)}
                     </div>
                   </div>
-                </div>
+                </GlassCard>
               );
             })}
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </GlassCard>
   );
 }

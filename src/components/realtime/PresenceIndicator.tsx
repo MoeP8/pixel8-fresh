@@ -1,7 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { useRealtime, RealtimePresence } from "@/hooks/useRealtime";
+import { useRealtime, type RealtimePresence } from "@/hooks/useRealtime";
 import { cn } from "@/lib/utils";
 
 interface PresenceIndicatorProps {

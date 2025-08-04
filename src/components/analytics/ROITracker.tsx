@@ -1,14 +1,16 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 
 interface ROITrackerProps {
   data: any[];
   dateRange: string;
+  loading?: boolean;
 }
 
-export function ROITracker({ data, dateRange }: ROITrackerProps) {
+export function ROITracker({ data, dateRange, loading = false }: ROITrackerProps) {
   const formatPercentage = (value: number) => `${(value * 100).toFixed(1)}%`;
   
   const averageROI = data.length > 0 
@@ -18,6 +20,37 @@ export function ROITracker({ data, dateRange }: ROITrackerProps) {
   const latestROI = data.length > 0 ? data[data.length - 1]?.combined || 0 : 0;
   const previousROI = data.length > 1 ? data[data.length - 2]?.combined || 0 : 0;
   const roiTrend = latestROI - previousROI;
+
+  if (loading) {
+    return (
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <Skeleton className="h-6 w-48 mb-2" />
+              <Skeleton className="h-4 w-64" />
+            </div>
+            <div className="text-right">
+              <Skeleton className="h-8 w-20 mb-2" />
+              <Skeleton className="h-4 w-24" />
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[300px] flex items-center justify-center">
+            <div className="space-y-3 w-full">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-3/4" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-2/3" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-4/5" />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>

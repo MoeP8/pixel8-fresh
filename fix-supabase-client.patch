@@ -1,0 +1,42 @@
+# CRITICAL FIX: Supabase client conflicts causing white screen
+
+## Problem Identified:
+Two different Supabase clients are being used:
+1. `/src/lib/supabase.ts` - Uses environment variables (VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY)
+2. `/src/integrations/supabase/client.ts` - Uses hardcoded values
+
+The lib/supabase.ts client throws an error on initialization when env vars are missing:
+
+```
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error(
+    'Supabase URL and anon key must be provided in environment variables. ' +
+    'Make sure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are set in .env.local'
+  );
+}
+```
+
+Since the environment variables are not set in Vercel, this error is thrown
+during module initialization, preventing React from rendering anything.
+
+## Files affected:
+- /src/services/authService.ts (imports from lib/supabase)
+- /src/services/socialMediaAPI.ts (imports from lib/supabase)  
+- /src/services/fileUploadService.ts (imports from lib/supabase)
+- Multiple other files import from integrations/supabase/client
+
+## Solution Options:
+
+### Option 1: Set environment variables in Vercel
+Add these to Vercel environment variables:
+- VITE_SUPABASE_URL=https://wxbrfmjxrfhntjkdlcbz.supabase.co
+- VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind4YnJmbWp4cmZobnRqa2RsY2J6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM1NzAzNTksImV4cCI6MjA2OTE0NjM1OX0.ie9jOgpXRcxS35K1JGkXxY88ymhtQWWIdEWJRzl6l-0
+
+### Option 2: Consolidate to single Supabase client
+Update all imports to use `/src/integrations/supabase/client.ts` which has working values.
+
+### Option 3: Add fallback values
+Modify lib/supabase.ts to use hardcoded values when env vars are missing.
+
+## Recommended immediate fix:
+Use Option 3 with fallback to prevent the error from blocking app initialization.

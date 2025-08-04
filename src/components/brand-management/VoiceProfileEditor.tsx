@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { GlassCard } from '@/components/ui/glass-card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -168,12 +168,12 @@ export function VoiceProfileEditor({
   };
 
   return (
-    <Card>
-      <CardHeader>
+    <GlassCard className="p-6" variant="subtle" hover>
+      <div className="mb-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Mic className="h-5 w-5" />
-            <CardTitle>Brand Voice Profile</CardTitle>
+            <h3 className="text-lg font-semibold text-foreground">Brand Voice Profile</h3>
           </div>
           <div className="flex items-center gap-2">
             {hasChanges && (
@@ -188,9 +188,9 @@ export function VoiceProfileEditor({
             </Button>
           </div>
         </div>
-      </CardHeader>
+      </div>
       
-      <CardContent className="space-y-8">
+      <div className="space-y-8">
         {Object.entries(voiceTraitConfig).map(([trait, config]) => {
           const traitKey = trait as VoiceTrait;
           const profile = profiles[traitKey];
@@ -276,7 +276,7 @@ export function VoiceProfileEditor({
             })}
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </GlassCard>
   );
 }

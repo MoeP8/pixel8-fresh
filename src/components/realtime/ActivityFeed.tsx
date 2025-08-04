@@ -17,7 +17,7 @@ import {
   Edit,
   Trash2
 } from "lucide-react";
-import { useRealtime, RealtimeActivity } from "@/hooks/useRealtime";
+import { useRealtime, type RealtimeActivity } from "@/hooks/useRealtime";
 import { cn } from "@/lib/utils";
 
 interface ActivityFeedProps {

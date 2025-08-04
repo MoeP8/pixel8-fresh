@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { GlassCard } from "@/components/ui/glass-card";
 import { GlassButton } from "@/components/ui/glass-button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { BrandPerformanceOverview } from "@/components/analytics/BrandPerformanceOverview";
 import { CampaignPerformanceChart } from "@/components/analytics/CampaignPerformanceChart";
 import { ContentPillarAnalytics } from "@/components/analytics/ContentPillarAnalytics";
@@ -30,9 +31,9 @@ const Analytics = () => {
   const { clients } = useClients();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6" data-tour="analytics-dashboard">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-8" data-tour="analytics-header">
         <div>
           <h1 className="text-3xl font-bold text-white mb-2">Brand Analytics</h1>
           <p className="text-slate-300">
@@ -70,7 +71,7 @@ const Analytics = () => {
             <Filter className="w-4 h-4 mr-2" />
             Filter
           </GlassButton>
-          <GlassButton variant="primary">
+          <GlassButton variant="primary" data-tour="export-button">
             <Download className="w-4 h-4 mr-2" />
             Export
           </GlassButton>
@@ -79,54 +80,74 @@ const Analytics = () => {
 
       {/* Stats Overview */}
       {selectedClient && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <GlassCard className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-slate-300 text-sm">Total Impressions</p>
-                <p className="text-white text-2xl font-bold">
-                  {brandMetrics?.total_impressions ? (brandMetrics.total_impressions / 1000).toFixed(1) + 'K' : '0'}
-                </p>
-              </div>
-              <BarChart3 className="w-8 h-8 text-blue-400" />
-            </div>
-          </GlassCard>
-          
-          <GlassCard className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-slate-300 text-sm">Engagement Rate</p>
-                <p className="text-white text-2xl font-bold">
-                  {brandMetrics?.engagement_rate ? brandMetrics.engagement_rate.toFixed(1) + '%' : '0%'}
-                </p>
-              </div>
-              <TrendingUp className="w-8 h-8 text-green-400" />
-            </div>
-          </GlassCard>
-          
-          <GlassCard className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-slate-300 text-sm">Reach</p>
-                <p className="text-white text-2xl font-bold">
-                  {brandMetrics?.reach ? (brandMetrics.reach / 1000).toFixed(1) + 'K' : '0'}
-                </p>
-              </div>
-              <Users className="w-8 h-8 text-purple-400" />
-            </div>
-          </GlassCard>
-          
-          <GlassCard className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-slate-300 text-sm">Brand Score</p>
-                <p className="text-white text-2xl font-bold">
-                  {brandMetrics?.brand_voice_score ? brandMetrics.brand_voice_score.toFixed(0) + '%' : '0%'}
-                </p>
-              </div>
-              <Target className="w-8 h-8 text-orange-400" />
-            </div>
-          </GlassCard>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8" data-tour="key-metrics">
+          {loading ? (
+            // Skeleton loading for stats cards
+            <>
+              {Array.from({ length: 4 }).map((_, i) => (
+                <GlassCard key={i} className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <Skeleton className="h-4 w-24 mb-2 bg-white/20" />
+                      <Skeleton className="h-8 w-16 bg-white/20" />
+                    </div>
+                    <Skeleton className="w-8 h-8 rounded bg-white/20" />
+                  </div>
+                </GlassCard>
+              ))}
+            </>
+          ) : (
+            // Actual stats cards
+            <>
+              <GlassCard className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-slate-300 text-sm">Total Impressions</p>
+                    <p className="text-white text-2xl font-bold">
+                      {brandMetrics?.total_impressions ? (brandMetrics.total_impressions / 1000).toFixed(1) + 'K' : '0'}
+                    </p>
+                  </div>
+                  <BarChart3 className="w-8 h-8 text-blue-400" />
+                </div>
+              </GlassCard>
+              
+              <GlassCard className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-slate-300 text-sm">Engagement Rate</p>
+                    <p className="text-white text-2xl font-bold">
+                      {brandMetrics?.engagement_rate ? brandMetrics.engagement_rate.toFixed(1) + '%' : '0%'}
+                    </p>
+                  </div>
+                  <TrendingUp className="w-8 h-8 text-green-400" />
+                </div>
+              </GlassCard>
+              
+              <GlassCard className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-slate-300 text-sm">Reach</p>
+                    <p className="text-white text-2xl font-bold">
+                      {brandMetrics?.reach ? (brandMetrics.reach / 1000).toFixed(1) + 'K' : '0'}
+                    </p>
+                  </div>
+                  <Users className="w-8 h-8 text-purple-400" />
+                </div>
+              </GlassCard>
+              
+              <GlassCard className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-slate-300 text-sm">Brand Score</p>
+                    <p className="text-white text-2xl font-bold">
+                      {brandMetrics?.brand_voice_score ? brandMetrics.brand_voice_score.toFixed(0) + '%' : '0%'}
+                    </p>
+                  </div>
+                  <Target className="w-8 h-8 text-orange-400" />
+                </div>
+              </GlassCard>
+            </>
+          )}
         </div>
       )}
 

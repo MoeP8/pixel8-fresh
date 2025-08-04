@@ -2,12 +2,60 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pixel8 Social Hub</title>
+    <style>
+      .loading-screen {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background: linear-gradient(135deg, #1e293b 0%, #1e40af 50%, #7c3aed 100%);
+        color: white;
+        font-family: system-ui, sans-serif;
+        text-align: center;
+      }
+      .loading-content {
+        animation: pulse 2s infinite;
+      }
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div class="loading-screen">
+        <div class="loading-content">
+          <div style="font-size: 48px; margin-bottom: 20px;">⚡</div>
+          <div style="font-size: 24px; margin-bottom: 10px;">Initializing Pixel8 Social Hub</div>
+          <div style="font-size: 14px; opacity: 0.8;">Loading React application...</div>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      // Preload critical resources
+      window.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM Content Loaded - starting app initialization');
+      });
+      
+      // Fallback error detection
+      window.addEventListener('error', function(e) {
+        console.error('JavaScript Error:', e.error);
+        document.getElementById('root').innerHTML = 
+          '<div class="loading-screen"><div style="color: #ff6b6b;"><h2>⚠️ Loading Error</h2><p>Check console for details</p><p style="font-size:12px;margin-top:10px;">Error: ' + e.error.message + '</p><button onclick="location.reload()" style="margin-top:10px;padding:8px 16px;background:#fff;color:#000;border:none;border-radius:4px;cursor:pointer;">Reload</button></div></div>';
+      });
+      
+      // Enhanced timeout with more info
+      setTimeout(function() {
+        const root = document.getElementById('root');
+        if (root && root.innerHTML.includes('loading-screen')) {
+          console.warn('App failed to load within 10 seconds - CSS may be blocking execution');
+          // Don't auto-replace, let the user see the loading screen
+        }
+      }, 10000);
+    </script>
   </body>
 </html>

@@ -1,5 +1,5 @@
 import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
+import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 
@@ -18,14 +18,22 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react-router-dom', 'scheduler'],
+    esbuildOptions: {
+      target: 'esnext'
+    }
+  },
   build: {
     target: "esnext",
-    minify: "esbuild",
+    minify: false, // Disable minification entirely to debug __assign issue
+    cssMinify: true,
     rollupOptions: {
       output: {
         manualChunks: (id) => {
-          // React and core dependencies
-          if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+          // React and core dependencies - keep scheduler with React
+          if (id.includes('react') || id.includes('react-dom') || id.includes('react-router') || 
+              id.includes('scheduler')) {
             return 'react-vendor';
           }
           

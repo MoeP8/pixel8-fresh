@@ -1,5 +1,6 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, TrendingUp, TrendingDown, Eye, Settings } from 'lucide-react';
@@ -8,9 +9,10 @@ import { Anomaly } from '@/hooks/useAnalytics';
 interface AnomalyDetectorProps {
   anomalies: Anomaly[];
   clientId?: string;
+  loading?: boolean;
 }
 
-export function AnomalyDetector({ anomalies, clientId }: AnomalyDetectorProps) {
+export function AnomalyDetector({ anomalies, clientId, loading = false }: AnomalyDetectorProps) {
   const getSeverityColor = (severity: string) => {
     switch (severity) {
       case 'high': return 'destructive';
@@ -38,6 +40,55 @@ export function AnomalyDetector({ anomalies, clientId }: AnomalyDetectorProps) {
     }
     return value.toLocaleString();
   };
+
+  if (loading) {
+    return (
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <Skeleton className="h-6 w-64 mb-2" />
+              <Skeleton className="h-4 w-80" />
+            </div>
+            <Skeleton className="h-9 w-36" />
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="flex items-start gap-3 p-4 border rounded-lg">
+                <Skeleton className="w-4 h-4 mt-0.5" />
+                <div className="flex-1 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Skeleton className="h-5 w-48" />
+                    <Skeleton className="h-6 w-16" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <Skeleton className="h-4 w-28" />
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-4 w-36" />
+                  </div>
+                  <div className="flex gap-2">
+                    <Skeleton className="h-8 w-24" />
+                    <Skeleton className="h-8 w-32" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-6 p-4 bg-muted rounded-lg">
+            <Skeleton className="h-5 w-36 mb-2" />
+            <div className="grid grid-cols-2 gap-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton key={i} className="h-4 w-32" />
+              ))}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
