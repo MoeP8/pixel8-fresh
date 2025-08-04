@@ -1,20 +1,10 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
-import App from './App.tsx'
-import ErrorBoundary from './components/ErrorBoundary.tsx'
+import App from './App-minimal.tsx'
+// import ErrorBoundary from './components/ErrorBoundary.tsx' // Temporarily removed for testing
 
-// Load CSS asynchronously to prevent blocking
-const loadCSS = async () => {
-  try {
-    await import('./index.css')
-    console.log('🎨 CSS loaded successfully')
-  } catch (error) {
-    console.warn('⚠️ CSS failed to load:', error)
-  }
-}
-
-// Start loading CSS immediately but don't wait for it
-loadCSS()
+// Import CSS statically - temporarily disabled for testing
+// import './index.css'
 
 console.log('✅ Main.tsx: Script loaded successfully');
 
@@ -66,9 +56,7 @@ const initializeApp = () => {
     
     root.render(
       <React.StrictMode>
-        <ErrorBoundary>
-          <App />
-        </ErrorBoundary>
+        <App />
       </React.StrictMode>
     );
     
