@@ -19,15 +19,20 @@ export default defineConfig(({ mode }) => ({
     },
   },
   optimizeDeps: {
-    include: ['react', 'react-dom', 'react-router-dom', 'scheduler'],
+    include: ['react', 'react-dom', 'react-router-dom', 'scheduler', 'tslib'],
+    exclude: [],
     esbuildOptions: {
-      target: 'esnext'
+      target: 'es2020',
+      define: {
+        global: 'globalThis',
+      },
     }
   },
   build: {
-    target: "esnext",
+    target: "es2020", // More compatible target
     minify: "terser", // Use terser for safer minification
     cssMinify: true,
+    cssCodeSplit: false, // Ensure CSS is always injected
     terserOptions: {
       compress: {
         drop_console: true,
