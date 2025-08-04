@@ -2,10 +2,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { AdCampaign, CampaignPerformance } from "@/hooks/useAdsManagement";
 import { useState } from 'react';
-import { TrendingUp, TrendingDown, Eye, MousePointer, Target, DollarSign } from "lucide-react";
+import { TrendingUp, TrendingDown, MousePointer, Target, DollarSign } from "lucide-react";
 
 interface PerformanceMonitorProps {
   campaigns: AdCampaign[];
