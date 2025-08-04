@@ -30,6 +30,39 @@ console.log('App.tsx: Settings imported');
 import DesignSystem from "@/pages/DesignSystem";
 console.log('App.tsx: DesignSystem imported');
 
+import Automation from "@/pages/Automation";
+console.log('App.tsx: Automation imported');
+
+import Accounts from "@/pages/Accounts";
+console.log('App.tsx: Accounts imported');
+
+import AdsManager from "@/pages/AdsManager";
+console.log('App.tsx: AdsManager imported');
+
+import Approvals from "@/pages/Approvals";
+console.log('App.tsx: Approvals imported');
+
+import Calendar from "@/pages/Calendar";
+console.log('App.tsx: Calendar imported');
+
+import Clients from "@/pages/Clients";
+console.log('App.tsx: Clients imported');
+
+import Posts from "@/pages/Posts";
+console.log('App.tsx: Posts imported');
+
+import Scheduler from "@/pages/Scheduler";
+console.log('App.tsx: Scheduler imported');
+
+import { AssetsPage } from "@/pages/assets/AssetsPage";
+console.log('App.tsx: AssetsPage imported');
+
+import { PublisherPage } from "@/pages/publisher/PublisherPage";
+console.log('App.tsx: PublisherPage imported');
+
+import { TeamPage } from "@/pages/team/TeamPage";
+console.log('App.tsx: TeamPage imported');
+
 console.log('App.tsx: ✅ All imports completed');
 
 // Loading component
@@ -116,6 +149,17 @@ const App = () => {
               <Route path="/campaigns" element={<Campaigns />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/design-system" element={<DesignSystem />} />
+              <Route path="/automation" element={<Automation />} />
+              <Route path="/accounts" element={<Accounts />} />
+              <Route path="/ads-manager" element={<AdsManager />} />
+              <Route path="/approvals" element={<Approvals />} />
+              <Route path="/calendar" element={<Calendar />} />
+              <Route path="/clients" element={<Clients />} />
+              <Route path="/posts" element={<Posts />} />
+              <Route path="/scheduler" element={<Scheduler />} />
+              <Route path="/assets" element={<AssetsPage />} />
+              <Route path="/publisher" element={<PublisherPage />} />
+              <Route path="/team" element={<TeamPage />} />
             </Routes>
           </Suspense>
         </Router>

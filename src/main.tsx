@@ -1,10 +1,10 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
-import App from './App-minimal.tsx'
-// import ErrorBoundary from './components/ErrorBoundary.tsx' // Temporarily removed for testing
+import App from './App.tsx'
+import ErrorBoundary from './components/ErrorBoundary.tsx'
 
-// Import CSS statically - temporarily disabled for testing
-// import './index.css'
+// Import CSS statically - this works with Vite
+import './index.css'
 
 console.log('✅ Main.tsx: Script loaded successfully');
 
