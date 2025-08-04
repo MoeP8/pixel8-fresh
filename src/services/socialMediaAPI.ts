@@ -497,7 +497,7 @@ export class SocialMediaAPIService {
 
     try {
       let endpoint = '';
-      let headers: Record<string, string> = {};
+      const headers: Record<string, string> = {};
 
       switch (platform) {
         case 'facebook':

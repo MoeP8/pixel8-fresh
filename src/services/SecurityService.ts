@@ -420,7 +420,7 @@ class SecurityService {
     const oneHourAgo = now - (60 * 60 * 1000);
     
     let totalRequests = 0;
-    let blockedRequests = 0;
+    const blockedRequests = 0;
     let suspiciousIPs = 0;
     const topEndpoints: Map<string, number> = new Map();
 
