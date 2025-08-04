@@ -5,14 +5,14 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '../types/database.types';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// Use hardcoded values as fallback (from integrations/supabase/client.ts)
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://wxbrfmjxrfhntjkdlcbz.supabase.co";
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind4YnJmbWp4cmZobnRqa2RsY2J6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM1NzAzNTksImV4cCI6MjA2OTE0NjM1OX0.ie9jOgpXRcxS35K1JGkXxY88ymhtQWWIdEWJRzl6l-0";
+
+console.log('🔐 Supabase: Initializing with URL:', supabaseUrl ? 'Set' : 'Missing');
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error(
-    'Supabase URL and anon key must be provided in environment variables. ' +
-    'Make sure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are set in .env.local'
-  );
+  console.error('⚠️ Supabase: Missing environment variables, using defaults');
 }
 
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {

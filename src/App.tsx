@@ -3,15 +3,34 @@ import { Suspense } from "react";
 
 console.log('App.tsx: Loading app component');
 
-// Restore all imports now that we know CSS was the issue
+// Add debug for imports
+console.log('App.tsx: Starting imports...');
+
 import Landing from "@/pages/Landing";
+console.log('App.tsx: Landing imported');
+
 import Dashboard from "@/pages/Dashboard";
+console.log('App.tsx: Dashboard imported');
+
 import BrandHub from "@/pages/BrandHub";
+console.log('App.tsx: BrandHub imported');
+
 import ContentStudio from "@/pages/ContentStudio";
+console.log('App.tsx: ContentStudio imported');
+
 import Analytics from "@/pages/Analytics";
+console.log('App.tsx: Analytics imported');
+
 import Campaigns from "@/pages/Campaigns";
+console.log('App.tsx: Campaigns imported');
+
 import Settings from "@/pages/Settings";
+console.log('App.tsx: Settings imported');
+
 import DesignSystem from "@/pages/DesignSystem";
+console.log('App.tsx: DesignSystem imported');
+
+console.log('App.tsx: ✅ All imports completed');
 
 // Loading component
 const LoadingFallback = () => (
