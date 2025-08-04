@@ -58,7 +58,42 @@
       }
       window.__assign = Object.assign;
     </script>
-    <script type="module" src="/src/main.tsx"></script>
+    <script>
+      // JavaScript works! Now test React imports step by step
+      console.log('✅ JavaScript execution confirmed working');
+      
+      document.addEventListener('DOMContentLoaded', function() {
+        const root = document.getElementById('root');
+        if (root) {
+          root.innerHTML = '<div style="background:#059669;color:white;padding:20px;text-align:center;font-family:system-ui;"><h1>🔍 TESTING REACT IMPORTS</h1><div id="import-status">Testing imports...</div></div>';
+          
+          const statusDiv = document.getElementById('import-status');
+          
+          // Test 1: React import
+          import('react').then(() => {
+            statusDiv.innerHTML += '<div>✅ React import successful</div>';
+            console.log('✅ React imported successfully');
+            
+            // Test 2: React DOM import
+            return import('react-dom/client');
+          }).then(() => {
+            statusDiv.innerHTML += '<div>✅ React DOM import successful</div>';
+            console.log('✅ React DOM imported successfully');
+            
+            // Test 3: Try main.tsx import
+            return import('/src/main.tsx');
+          }).then(() => {
+            statusDiv.innerHTML += '<div>🎉 main.tsx imported successfully - React should be starting!</div>';
+            console.log('🎉 main.tsx imported successfully');
+          }).catch(error => {
+            statusDiv.innerHTML += '<div style="color:#ff6b6b;">❌ Import failed: ' + error.message + '</div>';
+            console.error('❌ Import failed:', error);
+            console.error('Error stack:', error.stack);
+          });
+        }
+      });
+    </script>
+    <script type="module" src="/src/main-test.tsx"></script>
     <script>
       // Preload critical resources
       window.addEventListener('DOMContentLoaded', function() {
