@@ -26,8 +26,13 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     target: "esnext",
-    minify: false, // Disable minification entirely to debug __assign issue
+    minify: "esbuild", // Use esbuild with safe settings
     cssMinify: true,
+    esbuildOptions: {
+      keepNames: true, // Preserve function names for React
+      legalComments: 'none',
+      pure: ['console.log'], // Remove console.logs in production
+    },
     rollupOptions: {
       output: {
         manualChunks: (id) => {
