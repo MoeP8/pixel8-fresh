@@ -26,12 +26,27 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     target: "esnext",
-    minify: "esbuild", // Use esbuild with safe settings
+    minify: "terser", // Use terser for safer minification
     cssMinify: true,
-    esbuildOptions: {
-      keepNames: true, // Preserve function names for React
-      legalComments: 'none',
-      pure: ['console.log'], // Remove console.logs in production
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+        pure_funcs: ['console.log'],
+        passes: 1, // Single pass for safer minification
+        arrows: false, // Don't convert to arrow functions
+        keep_fargs: true, // Keep unused function arguments
+      },
+      mangle: {
+        safari10: true, // Fix Safari 10/11 bugs
+        keep_fnames: true, // Keep function names for React DevTools
+      },
+      format: {
+        comments: false,
+        ascii_only: true, // Safer for various environments
+        beautify: false,
+        semicolons: true, // Always use semicolons
+      },
     },
     rollupOptions: {
       output: {

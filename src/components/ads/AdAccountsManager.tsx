@@ -12,12 +12,11 @@ import { Plus, Settings, RefreshCw, AlertCircle, CheckCircle, Clock } from "luci
 import { format } from 'date-fns';
 
 interface AdAccountsManagerProps {
-  clientId: string;
   adAccounts: AdAccount[];
   loading: boolean;
 }
 
-export function AdAccountsManager({ clientId, adAccounts, loading }: AdAccountsManagerProps) {
+export function AdAccountsManager({ adAccounts, loading }: AdAccountsManagerProps) {
   const [isAddAccountOpen, setIsAddAccountOpen] = useState(false);
   const [formData, setFormData] = useState({
     platform: '',
@@ -60,15 +59,6 @@ export function AdAccountsManager({ clientId, adAccounts, loading }: AdAccountsM
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active': return 'bg-success';
-      case 'suspended': return 'bg-destructive';
-      case 'disabled': return 'bg-muted';
-      case 'pending': return 'bg-warning';
-      default: return 'bg-muted';
-    }
-  };
 
   const getPlatformBadgeColor = (platform: string) => {
     switch (platform) {

@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Progress } from '@/components/ui/progress';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Users, CircleDot, Target } from 'lucide-react';
 
 interface AudienceInsightsProps {
@@ -12,9 +12,8 @@ interface AudienceInsightsProps {
   loading?: boolean;
 }
 
-const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))'];
 
-export function AudienceInsights({ data, clientId, dateRange, loading = false }: AudienceInsightsProps) {
+export function AudienceInsights({ data, loading = false }: AudienceInsightsProps) {
   const totalReach = data.reduce((sum, item) => sum + item.unique_reach, 0);
   const averageOverlap = data.reduce((sum, item) => sum + item.overlap, 0) / data.length;
 

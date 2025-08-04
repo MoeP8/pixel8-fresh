@@ -51,8 +51,6 @@ export function CampaignCreator({ clientId, adAccounts, onCampaignCreate }: Camp
     setLoading(true);
 
     try {
-      const selectedAccount = adAccounts.find(acc => acc.id === formData.ad_account_id);
-      
       const campaignData = {
         ad_account_id: formData.ad_account_id,
         client_id: clientId,

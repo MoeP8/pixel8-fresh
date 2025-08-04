@@ -53,7 +53,8 @@
         const root = document.getElementById('root');
         if (root && root.innerHTML.includes('loading-screen')) {
           console.warn('App failed to load within 10 seconds - CSS may be blocking execution');
-          // Don't auto-replace, let the user see the loading screen
+          root.innerHTML = 
+            '<div class="loading-screen"><div style="color: #ff6b6b; text-align: center;"><h2>⚠️ App Loading Timeout</h2><p>The application failed to load within 10 seconds.</p><p style="font-size: 14px; margin: 20px 0;">This may be due to:</p><ul style="text-align: left; display: inline-block;"><li>Network connectivity issues</li><li>JavaScript bundle size</li><li>Third-party service delays</li></ul><button onclick="location.reload()" style="margin-top:20px;padding:12px 24px;background:#fff;color:#000;border:none;border-radius:6px;cursor:pointer;font-size:16px;">🔄 Reload Application</button><br><a href="/diagnostics.html" style="color: #60a5fa; margin-top: 15px; display: inline-block; text-decoration: underline;">🔍 Run Diagnostics</a></div></div>';
         }
       }, 10000);
     </script>
