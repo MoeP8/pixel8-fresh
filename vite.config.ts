@@ -35,9 +35,9 @@ export default defineConfig(({ mode }) => ({
     cssCodeSplit: false, // Ensure CSS is always injected
     terserOptions: {
       compress: {
-        drop_console: true,
+        drop_console: false, // Keep console logs for debugging
         drop_debugger: true,
-        pure_funcs: ['console.log'],
+        pure_funcs: [], // Don't drop console.log
         passes: 1, // Single pass for safer minification
         arrows: false, // Don't convert to arrow functions
         keep_fargs: true, // Keep unused function arguments
@@ -54,6 +54,9 @@ export default defineConfig(({ mode }) => ({
       },
     },
     rollupOptions: {
+      input: {
+        main: './index.html'
+      },
       output: {
         manualChunks: (id) => {
           // React and core dependencies - keep scheduler with React

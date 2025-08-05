@@ -1,12 +1,25 @@
+console.log('🔄 Main.tsx: Starting imports...');
+
 import React from 'react'
+console.log('✅ React imported:', typeof React);
+
 import { createRoot } from 'react-dom/client'
+console.log('✅ createRoot imported:', typeof createRoot);
+
 import App from './App.tsx'
+console.log('✅ App imported:', typeof App);
+
 import ErrorBoundary from './components/ErrorBoundary.tsx'
+console.log('✅ ErrorBoundary imported:', typeof ErrorBoundary);
 
 // Import CSS statically - this works with Vite
 import './index.css'
+console.log('✅ CSS imported');
 
 console.log('✅ Main.tsx: Script loaded successfully');
+console.log('🔍 DEBUG: Current URL:', window.location.href);
+console.log('🔍 DEBUG: User agent:', navigator.userAgent);
+console.log('🔍 DEBUG: Document ready state:', document.readyState);
 
 // Add global error handler
 window.addEventListener('unhandledrejection', (e) => {
@@ -15,9 +28,15 @@ window.addEventListener('unhandledrejection', (e) => {
 
 const initializeApp = () => {
   console.log('🚀 Main.tsx: Starting app initialization');
+  console.log('🔍 DEBUG: All window globals:', Object.getOwnPropertyNames(window).filter(name => name.includes('React') || name.includes('react')));
+  console.log('🔍 DEBUG: React available:', typeof React !== 'undefined');
+  console.log('🔍 DEBUG: createRoot available:', typeof createRoot !== 'undefined');
   
   const rootElement = document.getElementById("root");
   console.log('📍 Main.tsx: Root element:', rootElement ? 'Found' : 'NOT FOUND');
+  if (rootElement) {
+    console.log('🔍 DEBUG: Root element HTML:', rootElement.innerHTML.substring(0, 200));
+  }
 
   if (!rootElement) {
     console.error('❌ Root element not found!');
@@ -27,9 +46,13 @@ const initializeApp = () => {
 
   try {
     console.log('⚛️ Main.tsx: Creating React root');
+    console.log('🔍 DEBUG: About to call createRoot with element:', rootElement);
     const root = createRoot(rootElement);
+    console.log('🔍 DEBUG: React root created successfully:', root);
     
     console.log('🎨 Main.tsx: Rendering App component');
+    console.log('🔍 DEBUG: App component type:', typeof App);
+    console.log('🔍 DEBUG: React.StrictMode available:', typeof React.StrictMode);
     
     // Wrap in error boundary and add timeout
     const renderTimeout = setTimeout(() => {
